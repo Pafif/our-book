@@ -1,7 +1,7 @@
 // Keeps the app itself on the phone, so it opens fast and works offline.
 // The book's entries are not handled here: they come from Supabase, and the app keeps its own copy of the last-seen book.
 // Raise VERSION whenever you change files, so phones pick up the new version.
-const VERSION = 'our-book-v10';
+const VERSION = 'our-book-v11';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
