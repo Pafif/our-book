@@ -132,15 +132,24 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
   background:
     radial-gradient(90% 70% at 28% 22%,rgba(var(--rose-rgb),.22),transparent 62%),
     linear-gradient(160deg,#6d1429,#3f0b18 55%,#24060e);
-  border-radius:4px 10px 10px 4px;justify-content:center;align-items:flex-start;gap:16px;overflow:hidden;
-  padding:9% 10%;box-shadow:inset 14px 0 18px -10px rgba(0,0,0,.6),inset 0 0 0 1px rgba(var(--ember-rgb),.2);
+  border-radius:4px 10px 10px 4px;justify-content:flex-end;align-items:center;text-align:center;gap:0;overflow:hidden;
+  padding:9% 9% 10%;box-shadow:inset 14px 0 18px -10px rgba(0,0,0,.6),inset 0 0 0 1px rgba(var(--ember-rgb),.2);
 }
 .page.single.cover{box-shadow:inset 14px 0 18px -10px rgba(0,0,0,.6),inset 0 0 0 1px rgba(var(--ember-rgb),.2),0 24px 50px rgba(0,0,0,.65)}
 .page.cover::after{content:"";position:absolute;inset:16px;border:1px solid rgba(var(--ember-rgb),.4);border-radius:3px 7px 7px 3px;pointer-events:none}
 .cover h1{width:100%;font-size:64px;line-height:.98;color:var(--ember);letter-spacing:-.01em;text-shadow:0 0 28px rgba(var(--ember-rgb),.25)}
 .cover .names{max-width:100%;font-family:var(--hand);font-size-adjust:none;font-size:clamp(22px,3.2cqw,34px);line-height:1.1;overflow-wrap:anywhere}
 .cover .since{color:var(--ink-soft);font-style:italic}
-.cover svg{width:24%;min-width:70px;align-self:flex-end;flex:none;overflow:visible}
+/* Night sky cover: stars scattered over the whole cover, a glowing heart constellation, the title beneath */
+.cover-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cover-heart{position:relative;flex:1 1 auto;min-height:0;width:100%;max-width:min(64%,340px);margin:2% auto 5%;overflow:visible;filter:drop-shadow(0 0 10px rgba(var(--ember-rgb),.3))}
+.cover-text{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+.cover-text .btn{margin-top:10px}
+.cover h1{text-align:center}
+.shoot{position:absolute;top:14%;left:62%;width:90px;height:1.5px;border-radius:2px;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,rgba(255,240,214,0),rgba(255,240,214,.95));transform:rotate(-24deg) translateX(0);animation:shoot 11s linear 3s infinite}
+@keyframes shoot{0%,88%{opacity:0;transform:rotate(-24deg) translateX(0)}90%{opacity:1}96%{opacity:0;transform:rotate(-24deg) translateX(-160px)}100%{opacity:0;transform:rotate(-24deg) translateX(-160px)}}
+.book.turning .shoot{animation-play-state:paused}
 
 .star{transform-box:fill-box;transform-origin:center;animation:twinkle 3.4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.53s)}
 @keyframes twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
@@ -342,7 +351,7 @@ form h2{font-size:21px}
   .tabs{gap:2px 10px;padding-bottom:10px}
   .tabs a{font-size:13px}
 }
-@media (prefers-reduced-motion:reduce){.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots{animation:none}
+@media (prefers-reduced-motion:reduce){.shoot{display:none}.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots{animation:none}
   *{transition-duration:.01s!important}
 }
 </style>
@@ -660,23 +669,33 @@ function heartPts(n, W, H, pad){
 const GOLD = '#f1c481';
 function drawCover(el){
   const n = names(), d = dayNo(today());
-  const svg = s('svg', {viewBox:'0 0 100 100', 'aria-hidden':'true'});
-  const pts = heartPts(11, 100, 100, 8);
-  svg.append(s('polygon', {points: heartPts(90, 100, 100, 8).map(p => p.map(v => v.toFixed(1)).join(',')).join(' '), fill:'rgba(229,86,109,.12)', stroke:'rgba(241,196,129,.5)', 'stroke-width':.7}));
-  pts.forEach((p, i) => svg.append(s('circle', {class:'star', style:'--i:'+i, cx:p[0], cy:p[1], r: i % 3 ? 1.8 : 2.8, fill: GOLD})));
-  el.append(...[
-    svg,
-    h('span', {class:'kick', text:'a book for two'}),
+  const pts2str = pts => pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+  /* the sky: the same scatter of stars every time, some of them twinkling */
+  const sky = s('svg', {class:'cover-sky', viewBox:'0 0 300 400', preserveAspectRatio:'xMidYMid slice', 'aria-hidden':'true'});
+  let seed = 11; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+  for (let i = 0; i < 95; i++){
+    const big = rnd() > .9, tw = rnd() < .26, x = rnd()*300, y = rnd()*400, r = big ? 1.3 : .35 + rnd()*.6, pink = rnd() < .3, o = .25 + rnd()*.6;
+    sky.append(s('circle', {class: tw ? 'star' : '', style: tw ? '--i:' + i : '', cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(2), fill: pink ? '#ffd3d9' : '#f7e7d8', opacity: o.toFixed(2)}));
+  }
+  /* the heart constellation */
+  const heart = s('svg', {class:'cover-heart', viewBox:'0 0 100 100', 'aria-hidden':'true'});
+  const pts = heartPts(12, 100, 100, 7);
+  heart.append(s('polygon', {points: pts2str(heartPts(140, 100, 100, 7)), fill:'rgba(229,86,109,.13)'}),
+    s('polygon', {points: pts2str(pts), fill:'none', stroke:'rgba(241,196,129,.55)', 'stroke-width':.5, 'stroke-linejoin':'round'}));
+  pts.forEach((p, i) => heart.append(
+    s('circle', {cx: p[0], cy: p[1], r: i % 3 ? 3 : 4.6, fill:'rgba(241,196,129,.16)'}),
+    s('circle', {class:'star', style:'--i:' + i, cx: p[0], cy: p[1], r: i % 3 ? 1.3 : 2, fill:'#ffe9c2'})));
+  el.append(sky, h('span', {class:'shoot', 'aria-hidden':'true'}), heart, h('div', {class:'cover-text'}, ...[
     h('h1', {text: str(settings.title).trim() || 'Our Book'}),
     n && h('div', {class:'names', text: n}),
-    settings.since && h('div', {class:'since', text: 'since ' + fmtDay(settings.since) + (d ? ', day ' + d.toLocaleString() : '')}),
-    h('button', {class:'btn solid', type:'button', text:'Open the book', onclick: () => go(pos + step())})].filter(Boolean));
+    settings.since && h('div', {class:'since', text: 'since ' + fmtDay(settings.since) + (d ? ' · day ' + d.toLocaleString() : '')}),
+    h('button', {class:'btn solid', type:'button', text:'Open the book', onclick: () => go(pos + step())})].filter(Boolean)));
 }
 /* shrink the cover title until it sits inside the cover, whatever it says */
 function fitCover(){
   spread.querySelectorAll('.cover h1').forEach(t => {
     const pg = t.closest('.page'); if (!pg.clientWidth) return;
-    const maxH = pg.clientHeight*.32;
+    const maxH = pg.clientHeight*.22;   // leaves the upper part of the cover to the heart
     let size = Math.min(92, pg.clientWidth*.19);
     t.style.overflowWrap = 'normal'; t.style.fontSize = size + 'px';
     while (size > 18 && (t.scrollWidth > t.clientWidth + 1 || t.offsetHeight > maxH)){ size -= 2; t.style.fontSize = size + 'px'; }
