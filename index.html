@@ -85,7 +85,7 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .glow{position:absolute;inset:-12%;z-index:7;pointer-events:none;will-change:opacity;transition:transform 1.25s cubic-bezier(.45,0,.2,1);
   background:radial-gradient(42% 46% at 50% 44%,rgba(var(--ember-rgb),.09),rgba(var(--rose-rgb),.05) 55%,transparent 75%);
   animation:flicker 5.5s ease-in-out infinite}
-.book.turning .glow,.book.turning .star,.book.turning .dayno{animation-play-state:paused}
+.book.turning .glow,.book.turning .dayno{animation-play-state:paused}
 @keyframes flicker{0%,100%{opacity:.85}18%{opacity:1}31%{opacity:.78}47%{opacity:.96}63%{opacity:.82}80%{opacity:1}}
 
 .page{
@@ -149,7 +149,6 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .shoot{position:absolute;top:14%;left:62%;width:90px;height:1.5px;border-radius:2px;pointer-events:none;opacity:0;
   background:linear-gradient(90deg,rgba(255,240,214,0),rgba(255,240,214,.95));transform:rotate(-24deg) translateX(0);animation:shoot 11s linear 3s infinite}
 @keyframes shoot{0%,88%{opacity:0;transform:rotate(-24deg) translateX(0)}90%{opacity:1}96%{opacity:0;transform:rotate(-24deg) translateX(-160px)}100%{opacity:0;transform:rotate(-24deg) translateX(-160px)}}
-.book.turning .shoot{animation-play-state:paused}
 /* star shine: each sky star twinkles at its own pace, the brightest flash a four-point glint,
    the heart's stars breathe a soft glow and a spark of light travels round the heart */
 .tw{animation:tw var(--d,4s) ease-in-out var(--dl,0s) infinite}
@@ -160,7 +159,7 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 @keyframes halo{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
 .trace{stroke-dasharray:5 95;stroke-dashoffset:100;animation:trace 7s linear infinite}
 @keyframes trace{to{stroke-dashoffset:0}}
-.book.turning .tw,.book.turning .flare,.book.turning .halo,.book.turning .trace{animation-play-state:paused}
+
 
 .star{transform-box:fill-box;transform-origin:center;animation:twinkle 3.4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.53s)}
 @keyframes twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
@@ -498,6 +497,7 @@ let pages = [], pos = 0, busy = false, focusId = null;
 const urlCache = new Map();   // photo path -> signed link, so each photo is fetched once
 const urlReady = new Map();   // the same links once known, so a page can show its photos the moment it is built
 
+/* the sections follow each other in alphabetical order of their titles, in the book, on Contents and in the tabs */
 const SECTIONS = {
   story:  {title:'Milestones',           kind:'milestone', add:'Add a milestone', per:3},
   photos: {title:'Gallery',         kind:'photo',     add:'Add a photo',     per:2},
@@ -781,8 +781,7 @@ function drawCover(el){
 /* Pin the cover's animations to the page's clock (time since it opened): a redrawn cover then shows every
    twinkle, glint and the spark on the outline exactly where they already were, instead of starting them over. */
 function syncCover(){
-  if (busy) return;
-  spread.querySelectorAll(':scope > .page.cover').forEach(pg => {
+  spread.querySelectorAll('.page.cover').forEach(pg => {
     if (!pg.getAnimations) return;
     pg.getAnimations({subtree: true}).forEach(a => { try { if (a.playState === 'running' && a.startTime !== 0) a.startTime = 0; } catch {} });
   });
@@ -811,7 +810,7 @@ const BLURB = {story:'memorable moments', photos:'our shared album', notes:'litt
   places:'every place, a star on your heart', wishes:'everything yet to be done together', watch:'films and series for our evenings', calendar:'plans, birthdays and anniversaries'};
 function drawContents(el){
   el.append(h('header', {class:'sec'}, h('h2', {text:'Contents'})),
-    h('ul', {class:'toc'}, Object.keys(SECTIONS).map((k, i) => {
+    h('ul', {class:'toc'}, ORDER.map((k, i) => {
       const n = items.filter(x => x.kind === SECTIONS[k].kind).length;
       const mark = s('svg', {class:'mark', viewBox:'0 0 24 24', 'aria-hidden':'true'});
       mark.append(s('path', {d:'M12 1l2.6 7.4L22 12l-7.4 2.6L12 23l-2.6-8.4L2 12l7.4-3.6z'}));
@@ -1055,6 +1054,7 @@ function fitUpcoming(){
     while (ul.children.length > 1 && pg.scrollHeight > pg.clientHeight) ul.lastElementChild.remove();
   });
 }
+const ORDER = Object.keys(SECTIONS).sort((a, b) => SECTIONS[a].title.localeCompare(SECTIONS[b].title, 'sk'));
 function drawFiller(el, key){
   el.append(h('div', {class:'filler'}, h('span', {text:'This page is waiting.'}),
     canWrite && h('button', {class:'btn small', type:'button', text: SECTIONS[key].add, onclick: () => openForm(SECTIONS[key].kind)})));
@@ -1094,15 +1094,16 @@ function buildPages(){
   P.push({section:'cover', cover:true, draw: drawCover});
   sec('contents', [{draw: drawDedication}, {draw: drawContents}]);
   const paged = (key, fn, list) => sec(key, fitChunks(list || byKind(SECTIONS[key].kind), fn, SECTIONS[key].per).map((c, i) => ({ids: c.map(x => x.id), draw: el => fn(el, c, i === 0)})));
-  paged('story', drawStory);
-  sec('photos', photoPages(byKind('photo')).map((c, i) => ({ids: c.map(x => x.id), draw: el => drawPhotos(el, c, i === 0)})));
-  paged('notes', drawNotes);
-  sec('places', [{draw: drawSky, kindAll:'place'}, {draw: drawPlaces}]);
-  paged('wishes', drawWishes);
-  const watch = byKind('watch');
-  watch.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));   // still to watch first, in the order added
-  paged('watch', drawWatch, watch);
-  sec('calendar', [{draw: drawMonth, kindAll:'event'}, {draw: drawUpcoming}]);
+  const build = {
+    story:    () => paged('story', drawStory),
+    photos:   () => sec('photos', photoPages(byKind('photo')).map((c, i) => ({ids: c.map(x => x.id), draw: el => drawPhotos(el, c, i === 0)}))),
+    notes:    () => paged('notes', drawNotes),
+    places:   () => sec('places', [{draw: drawSky, kindAll:'place'}, {draw: drawPlaces}]),
+    wishes:   () => paged('wishes', drawWishes),
+    watch:    () => { const watch = byKind('watch'); watch.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0)); paged('watch', drawWatch, watch); },   // still to watch first
+    calendar: () => sec('calendar', [{draw: drawMonth, kindAll:'event'}, {draw: drawUpcoming}]),
+  };
+  ORDER.forEach(k => build[k]());
   return P;
 }
 let dirty = false;
@@ -1234,14 +1235,15 @@ function turnWide(dir, from){
   const box = spread.getBoundingClientRect(), W = box.width/2, H = box.height, sgn = dir > 0 ? -1 : 1;
   /* the page is cut on whole pixels (X = slice edges from its left side), so every slice draws its text
      exactly where the still page draws it and nothing shifts or blurs when the turn starts or ends */
-  const X = Array.from({length: STRIPS + 1}, (_, j) => j === STRIPS ? W : Math.round(j*W/STRIPS));
+  const N = stiff ? 1 : STRIPS;   // the cover is a stiff board: it turns in one piece, so one copy of it is enough
+  const X = Array.from({length: N + 1}, (_, j) => j === N ? W : Math.round(j*W/N));
   const ms = stiff ? 1250 : 1050, ang = leafAngle(stiff);
   const leaf = h('div', {class:'turn ' + (dir > 0 ? 'fwd' : 'bwd'), 'aria-hidden':'true', inert:true});
   const strips = [], scrolls = [];
   let parent = leaf, prevW = 0;
-  for (let k = 0; k < STRIPS; k++){
+  for (let k = 0; k < N; k++){
     const el = h('div', {class:'strip'});
-    const j = dir > 0 ? k : STRIPS - 1 - k;       // which slice of the page this strip carries on its front
+    const j = dir > 0 ? k : N - 1 - k;       // which slice of the page this strip carries on its front
     const w = X[j + 1] - X[j];
     el.style.cssText = `width:${w}px;left:${k ? (dir > 0 ? prevW : -w) : (dir > 0 ? 0 : X[j])}px`;
     prevW = w;
@@ -1251,6 +1253,7 @@ function turnWide(dir, from){
     strips.push({el, front, back});
   }
   spread.append(leaf);
+  syncCover();   // the cover's slices on the turning page keep twinkling, in step with the real cover
   scrolls.forEach(([c, y]) => { if (y) c.scrollTop = y; });
   leaf.querySelectorAll('.ph img:not([src]), .thumb img:not([src])').forEach(ci => {
     const it = items.find(x => x.id === ci.parentElement.dataset.id);
@@ -1271,8 +1274,8 @@ function turnWide(dir, from){
     s.front.light.animate(sheen, opt); s.back.light.animate(sheen, opt);
   });
   /* shadows the leaf throws on the pages beneath: how far it reaches on each side, and how high it is */
-  const reach = T.map((_, i) => { let x = 0, hi = 0, lo = 0; for (let k = 0; k < STRIPS; k++){ x += Math.cos(A[k][i]*RAD)/STRIPS; hi = Math.max(hi, x); lo = Math.min(lo, x); } return [hi, -lo]; });
-  const mean = T.map((_, i) => A.reduce((sum, a) => sum + a[i], 0)/STRIPS);
+  const reach = T.map((_, i) => { let x = 0, hi = 0, lo = 0; for (let k = 0; k < N; k++){ x += Math.cos(A[k][i]*RAD)/N; hi = Math.max(hi, x); lo = Math.min(lo, x); } return [hi, -lo]; });
+  const mean = T.map((_, i) => A.reduce((sum, a) => sum + a[i], 0)/N);
   const casts = [];
   const cast = (side, far) => {
     const c = h('div', {class:'cast ' + side});
@@ -1325,12 +1328,13 @@ function turnSingle(dir){
   if (dir > 0){ front.append(old, sf); spread.append(nP); frames = [flat, mid(.7), away]; sf.animate([{opacity:0}, {opacity:.6}], {duration: ms, fill:'forwards'}); }
   else { front.append(nP, sf); frames = [away, mid(.3), flat]; sf.animate([{opacity:.6}, {opacity:0}], {duration: ms, fill:'forwards'}); }
   leaf.append(front); spread.append(leaf);
+  syncCover();
   fitCover();
   let finished = false, guard = 0;
   const done = () => {
     if (finished) return;
     finished = true; clearTimeout(guard);
-    if (dir < 0){ old.remove(); spread.append(nP); }
+    if (dir < 0){ old.remove(); spread.append(nP); syncCover(); }
     leaf.remove();
     endTurn();
   };
@@ -1471,6 +1475,8 @@ spread.addEventListener('click', e => {
 });
 
 /* ---------- navigation ---------- */
+/* tabs in the same order as the book */
+ORDER.forEach(k => { const a = document.querySelector('.tabs a[data-s="' + k + '"]'); if (a) $('next').before(a); });
 $('prev').addEventListener('click', () => go(pos - step()));
 $('next').addEventListener('click', () => go(pos + step()));
 document.addEventListener('keydown', e => {
