@@ -751,8 +751,8 @@ function drawDedication(el){
     d ? [h('div', {class:'dayno', text: d.toLocaleString()}), h('div', {text: 'days together, since ' + fmtDay(settings.since)})]
       : h('p', {class:'empty', text: loaded ? 'Add your names and the day it all began, and this page will count your days together.' : ''})));
 }
-const BLURB = {story:'the milestones, in the order they happened', photos:'the two of you, in pictures', notes:'little letters, kept for good',
-  places:'every place, a star on your heart', wishes:'everything still to do together', watch:'films and series for our evenings'};
+const BLURB = {story:'memorable moments', photos:'our shared album', notes:'little letters, kept for good',
+  places:'every place, a star on your heart', wishes:'everything yet to be done together', watch:'films and series for our evenings'};
 function drawContents(el){
   el.append(h('header', {class:'sec'}, h('h2', {text:'Contents'})),
     h('ul', {class:'toc'}, Object.keys(SECTIONS).map((k, i) => {
