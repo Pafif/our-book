@@ -890,9 +890,14 @@ const num = v => +v.toFixed(3);
    Paper bends, so its free edge lifts first and lands first; a cover is a stiff board and swings in one piece. */
 function leafAngle(stiff){
   if (stiff) return (k, t) => 180*smooth(smooth(t)*.5 + t*.5);
+  /* The spine side comes down in step with the rest of the sheet, so the page never hovers above the book
+     and then sinks (that read as a little bounce). The whole turn finishes at 90% of the time and lies still after. */
+  const lift = t => { const s = smooth(t), w = smooth(Math.min(1, Math.max(0, (t - .35)/.5)));
+    return Math.pow(s, 1.1)*(1 - w) + (1 - Math.pow(1 - s, 2.2))*w; };
   return (k, t) => {
-    const base = 180*Math.pow(smooth(t), 1.1);
-    const bend = 62*Math.pow(Math.max(0, Math.sin(Math.PI*Math.pow(t, .85))), .9);
+    const u = Math.min(1, t/.9);
+    const base = 180*lift(u);
+    const bend = 62*Math.pow(Math.max(0, Math.sin(Math.PI*Math.pow(u, .85))), .9)*(1 - Math.pow(u, 6));
     return Math.min(180, base + bend*Math.pow(k/(STRIPS - 1), .85));
   };
 }
