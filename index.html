@@ -150,6 +150,17 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
   background:linear-gradient(90deg,rgba(255,240,214,0),rgba(255,240,214,.95));transform:rotate(-24deg) translateX(0);animation:shoot 11s linear 3s infinite}
 @keyframes shoot{0%,88%{opacity:0;transform:rotate(-24deg) translateX(0)}90%{opacity:1}96%{opacity:0;transform:rotate(-24deg) translateX(-160px)}100%{opacity:0;transform:rotate(-24deg) translateX(-160px)}}
 .book.turning .shoot{animation-play-state:paused}
+/* star shine: each sky star twinkles at its own pace, the brightest flash a four-point glint,
+   the heart's stars breathe a soft glow and a spark of light travels round the heart */
+.tw{animation:tw var(--d,4s) ease-in-out var(--dl,0s) infinite}
+@keyframes tw{0%,100%{opacity:var(--o,.8)}50%{opacity:calc(var(--o,.8) * .18)}}
+.flare{transform-box:fill-box;transform-origin:center;opacity:0;animation:flare var(--d,7s) ease-in-out var(--dl,0s) infinite}
+@keyframes flare{0%,70%,100%{opacity:0;transform:scale(.2) rotate(0deg)}82%{opacity:1;transform:scale(1) rotate(45deg)}90%{opacity:.6;transform:scale(.7) rotate(70deg)}}
+.halo{transform-box:fill-box;transform-origin:center;animation:halo var(--d,4s) ease-in-out var(--dl,0s) infinite}
+@keyframes halo{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+.trace{stroke-dasharray:5 95;stroke-dashoffset:100;animation:trace 7s linear infinite}
+@keyframes trace{to{stroke-dashoffset:0}}
+.book.turning .tw,.book.turning .flare,.book.turning .halo,.book.turning .trace{animation-play-state:paused}
 
 .star{transform-box:fill-box;transform-origin:center;animation:twinkle 3.4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.53s)}
 @keyframes twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
@@ -351,7 +362,7 @@ form h2{font-size:21px}
   .tabs{gap:2px 10px;padding-bottom:10px}
   .tabs a{font-size:13px}
 }
-@media (prefers-reduced-motion:reduce){.shoot{display:none}.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots{animation:none}
+@media (prefers-reduced-motion:reduce){.shoot,.flare,.trace{display:none}.tw,.halo{animation:none}.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots{animation:none}
   *{transition-duration:.01s!important}
 }
 </style>
@@ -670,21 +681,40 @@ const GOLD = '#f1c481';
 function drawCover(el){
   const n = names(), d = dayNo(today());
   const pts2str = pts => pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
-  /* the sky: the same scatter of stars every time, some of them twinkling */
-  const sky = s('svg', {class:'cover-sky', viewBox:'0 0 300 400', preserveAspectRatio:'xMidYMid slice', 'aria-hidden':'true'});
+  const sparkle = r => `M0,${-r} L${r*.14},${-r*.14} L${r},0 L${r*.14},${r*.14} L0,${r} L${-r*.14},${r*.14} L${-r},0 L${-r*.14},${-r*.14}Z`;
+  const glow = (id, mid) => { const g = s('radialGradient', {id}); g.append(s('stop', {offset:'0', 'stop-color':'#fff7e8', 'stop-opacity':'1'}), s('stop', {offset:'.35', 'stop-color': mid, 'stop-opacity':'.55'}), s('stop', {offset:'1', 'stop-color': mid, 'stop-opacity':'0'})); return g; };
   let seed = 11; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+  /* the sky: the same scatter of stars every time; each twinkles at its own pace, the brightest glint now and then */
+  const sky = s('svg', {class:'cover-sky', viewBox:'0 0 300 400', preserveAspectRatio:'xMidYMid slice', 'aria-hidden':'true'});
+  const sd = s('defs'); sd.append(glow('sky-glow', '#f1c481')); sky.append(sd);
   for (let i = 0; i < 95; i++){
-    const big = rnd() > .9, tw = rnd() < .26, x = rnd()*300, y = rnd()*400, r = big ? 1.3 : .35 + rnd()*.6, pink = rnd() < .3, o = .25 + rnd()*.6;
-    sky.append(s('circle', {class: tw ? 'star' : '', style: tw ? '--i:' + i : '', cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(2), fill: pink ? '#ffd3d9' : '#f7e7d8', opacity: o.toFixed(2)}));
+    const big = rnd() > .9, tw = rnd() < .45, x = rnd()*300, y = rnd()*400, r = big ? 1.3 : .35 + rnd()*.6, pink = rnd() < .3, o = .25 + rnd()*.6;
+    const st = tw ? `--o:${o.toFixed(2)};--d:${(2.6 + rnd()*4.5).toFixed(1)}s;--dl:-${(rnd()*7).toFixed(1)}s` : '';
+    if (big) sky.append(s('circle', {cx: x.toFixed(1), cy: y.toFixed(1), r: 4, fill:'url(#sky-glow)', opacity:'.5'}));
+    sky.append(s('circle', {class: tw ? 'tw' : '', style: st, cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(2), fill: pink ? '#ffd3d9' : '#f7e7d8', opacity: o.toFixed(2)}));
+    if (big){
+      const g = s('g', {transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`});
+      g.append(s('path', {class:'flare', d: sparkle(7), fill:'#fff4dc', style: `--d:${(6 + rnd()*6).toFixed(1)}s;--dl:-${(rnd()*10).toFixed(1)}s`}));
+      sky.append(g);
+    }
   }
-  /* the heart constellation */
+  /* the heart constellation: breathing glows, glinting stars, and a spark travelling round the outline */
   const heart = s('svg', {class:'cover-heart', viewBox:'0 0 100 100', 'aria-hidden':'true'});
+  const hd = s('defs'); hd.append(glow('heart-glow', '#f1c481')); heart.append(hd);
   const pts = heartPts(12, 100, 100, 7);
   heart.append(s('polygon', {points: pts2str(heartPts(140, 100, 100, 7)), fill:'rgba(229,86,109,.13)'}),
-    s('polygon', {points: pts2str(pts), fill:'none', stroke:'rgba(241,196,129,.55)', 'stroke-width':.5, 'stroke-linejoin':'round'}));
-  pts.forEach((p, i) => heart.append(
-    s('circle', {cx: p[0], cy: p[1], r: i % 3 ? 3 : 4.6, fill:'rgba(241,196,129,.16)'}),
-    s('circle', {class:'star', style:'--i:' + i, cx: p[0], cy: p[1], r: i % 3 ? 1.3 : 2, fill:'#ffe9c2'})));
+    s('polygon', {points: pts2str(pts), fill:'none', stroke:'rgba(241,196,129,.5)', 'stroke-width':.5, 'stroke-linejoin':'round'}),
+    s('polygon', {class:'trace', points: pts2str(pts), pathLength:'100', fill:'none', stroke:'#fff1d6', 'stroke-width':.9, 'stroke-linecap':'round', 'stroke-linejoin':'round'}));
+  pts.forEach((p, i) => {
+    const main = i % 3 === 0, delay = `--d:${(3.4 + (i % 4)*.7).toFixed(1)}s;--dl:-${(i*.83).toFixed(2)}s`;
+    heart.append(s('circle', {class:'halo', style: delay, cx: p[0], cy: p[1], r: main ? 7 : 5, fill:'url(#heart-glow)'}),
+      s('circle', {cx: p[0], cy: p[1], r: main ? 1.9 : 1.2, fill:'#fff8ec'}));
+    if (main){
+      const g = s('g', {transform: `translate(${p[0].toFixed(1)} ${p[1].toFixed(1)})`});
+      g.append(s('path', {class:'flare', d: sparkle(8), fill:'#fff4dc', style: `--d:${(5 + i*.4).toFixed(1)}s;--dl:-${(i*1.3).toFixed(1)}s`}));
+      heart.append(g);
+    }
+  });
   el.append(sky, h('span', {class:'shoot', 'aria-hidden':'true'}), heart, h('div', {class:'cover-text'}, ...[
     h('h1', {text: str(settings.title).trim() || 'Our Book'}),
     n && h('div', {class:'names', text: n}),
