@@ -967,7 +967,8 @@ function turnWide(dir, from){
   const stay = dir > 0 ? oL : oR;                 // old page that stays put until the leaf lands on it
   const under = dir > 0 ? nR : nL;                // new page uncovered as the leaf lifts
   const land = dir > 0 ? nL : nR;                 // new page on the back of the leaf
-  under.classList.add('enter'); land.classList.add('held');   // only the page being uncovered fades its rows in; the page on the leaf is simply printed there
+  under.classList.add('enter'); land.classList.add('held');
+  const ready = Promise.all([...land.querySelectorAll('img[src]'), ...under.querySelectorAll('img[src]')].map(i => i.decode ? i.decode().catch(() => {}) : null));   // only the page being uncovered fades its rows in; the page on the leaf is simply printed there
   spread.append(under, land);
   fitCover();
   const box = spread.getBoundingClientRect(), W = box.width/2, H = box.height, sgn = dir > 0 ? -1 : 1;
@@ -1032,12 +1033,23 @@ function turnWide(dir, from){
   stardust(dir, ang, ms, W, H, stiff ? 18 : 12);
 
   let finished = false, guard = 0;
+  const swap = () => {
+    stay.remove(); casts.forEach(c => c.remove());
+    land.classList.remove('held'); under.classList.remove('enter');
+    /* the turning copy fades out over the real page instead of vanishing in one frame,
+       so tiny drawing differences between the two settle softly instead of jumping */
+    let tidied = false;
+    const tidy = () => { if (tidied) return; tidied = true; leaf.remove(); endTurn(); };
+    const fade = leaf.animate([{opacity:1}, {opacity:0}], {duration:140, easing:'ease-out', fill:'forwards'});
+    fade.onfinish = tidy; fade.oncancel = tidy;
+    setTimeout(tidy, 400);
+  };
   const done = () => {
     if (finished) return;
     finished = true; clearTimeout(guard);
-    stay.remove(); leaf.remove(); casts.forEach(c => c.remove());
-    land.classList.remove('held'); under.classList.remove('enter');
-    endTurn();
+    /* the leaf holds its final position until the page's photos are ready (a fifth of a second at most),
+       then the swap happens between two frames */
+    Promise.race([ready, new Promise(r => setTimeout(r, 200))]).then(() => requestAnimationFrame(swap));
   };
   main.onfinish = done; main.oncancel = done;
   guard = setTimeout(done, ms + 300);
