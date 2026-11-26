@@ -336,11 +336,11 @@ form h2{font-size:21px}
   <button class="arrow" id="prev" type="button" aria-label="Previous page">&#8592;</button>
   <a href="#cover" data-s="cover">Cover</a>
   <a href="#contents" data-s="contents">Contents</a>
-  <a href="#story" data-s="story">Our story</a>
-  <a href="#photos" data-s="photos">Photographs</a>
+  <a href="#story" data-s="story">Milestones</a>
+  <a href="#photos" data-s="photos">Gallery</a>
   <a href="#notes" data-s="notes">Notes</a>
-  <a href="#places" data-s="places">Places</a>
-  <a href="#wishes" data-s="wishes">Someday list</a>
+  <a href="#places" data-s="places">Travel</a>
+  <a href="#wishes" data-s="wishes">Goals</a>
   <a href="#watch" data-s="watch">Watch list</a>
   <button class="arrow" id="next" type="button" aria-label="Next page">&#8594;</button>
 </nav>
@@ -406,10 +406,10 @@ const urlReady = new Map();   // the same links once known, so a page can show i
 
 const SECTIONS = {
   story:  {title:'Our story',           kind:'milestone', add:'Add a milestone', per:3},
-  photos: {title:'Photographs',         kind:'photo',     add:'Add a photo',     per:2},
+  photos: {title:'Gallery',         kind:'photo',     add:'Add a photo',     per:2},
   notes:  {title:'Notes to each other', kind:'note',      add:'Write a note',    per:2},
   places: {title:"Places we've been",   kind:'place',     add:'Add a place'},
-  wishes: {title:'Someday list',        kind:'wish',      add:'Add a wish',      per:8},
+  wishes: {title:'Goals',        kind:'wish',      add:'Add a wish',      per:8},
   watch:  {title:'Watch list',          kind:'watch',     add:'Add a film or series', per:6},
 };
 
