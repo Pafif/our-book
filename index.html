@@ -621,7 +621,7 @@ function secHead(key){
   return h('header', {class:'sec'}, h('h2', {text: S.title}),
     canWrite && h('button', {class:'btn small', type:'button', text: S.add, onclick: () => openForm(S.kind)}));
 }
-function running(key){ return h('div', {class:'running', text: SECTIONS[key].title + ', continued'}); }
+function running(key){ return h('div', {class:'running', text: SECTIONS[key].title}); }
 function editBtn(item){ return canWrite && h('button', {class:'edit', type:'button', text:'edit', 'aria-label':'Edit ' + (str(item.title) || 'this entry'), onclick: () => openForm(item.kind, item)}); }
 
 const HEART = (() => {
