@@ -804,6 +804,29 @@ function drawFiller(el, key){
 }
 
 function step(){ return narrow.matches ? 1 : 2; }
+/* Split a list section into pages by what actually fits: each page is filled with as many entries as its
+   space allows, measured on a hidden page of the same size, so short entries share a page and long ones get room. */
+function fitChunks(list, draw, fallback){
+  if (!list.length) return [[]];
+  const probe = h('section', {class: 'page ' + (step() === 2 ? 'left' : 'single'), 'aria-hidden': 'true'});
+  probe.style.visibility = 'hidden';
+  spread.append(probe);
+  if (!probe.clientHeight){ probe.remove(); return chunk(list, fallback); }
+  const fits = (part, first) => {
+    probe.replaceChildren();
+    draw(probe, part, first);
+    return probe.scrollHeight <= probe.clientHeight + 1;
+  };
+  const out = [];
+  for (let i = 0; i < list.length; ){
+    const first = out.length === 0;
+    let n = 1;
+    while (i + n < list.length && fits(list.slice(i, i + n + 1), first)) n++;
+    out.push(list.slice(i, i + n)); i += n;
+  }
+  probe.remove();
+  return out;
+}
 function buildPages(){
   const wide = step() === 2, P = [];
   const sec = (name, list) => {
@@ -813,7 +836,7 @@ function buildPages(){
   if (wide) P.push({section:'cover', blank:true});
   P.push({section:'cover', cover:true, draw: drawCover});
   sec('contents', [{draw: drawDedication}, {draw: drawContents}]);
-  const paged = (key, fn) => sec(key, chunk(byKind(SECTIONS[key].kind), SECTIONS[key].per).map((c, i) => ({ids: c.map(x => x.id), draw: el => fn(el, c, i === 0)})));
+  const paged = (key, fn, list) => sec(key, fitChunks(list || byKind(SECTIONS[key].kind), fn, SECTIONS[key].per).map((c, i) => ({ids: c.map(x => x.id), draw: el => fn(el, c, i === 0)})));
   paged('story', drawStory);
   sec('photos', photoPages(byKind('photo')).map((c, i) => ({ids: c.map(x => x.id), draw: el => drawPhotos(el, c, i === 0)})));
   paged('notes', drawNotes);
@@ -821,7 +844,7 @@ function buildPages(){
   paged('wishes', drawWishes);
   const watch = byKind('watch');
   watch.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));   // still to watch first, in the order added
-  sec('watch', chunk(watch, SECTIONS.watch.per).map((c, i) => ({ids: c.map(x => x.id), draw: el => drawWatch(el, c, i === 0)})));
+  paged('watch', drawWatch, watch);
   return P;
 }
 let dirty = false;
@@ -1203,8 +1226,8 @@ function paintSky(){
     g.beginPath(); g.arc(rnd()*w, rnd()*hh, big ? 1.5 : .4 + rnd()*.7, 0, 7); g.fill();
   }
 }
-let skyT; addEventListener('resize', () => { clearTimeout(skyT); skyT = setTimeout(() => { paintSky(); fitCover(); }, 150); });
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCover);
+let skyT; addEventListener('resize', () => { clearTimeout(skyT); skyT = setTimeout(() => { paintSky(); if (busy) dirty = true; else render(); }, 150); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (busy) dirty = true; else render(); });
 
 /* ---------- offline copy ---------- */
 const CACHE_KEY = 'our-book-cache-v1';
