@@ -137,10 +137,8 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 @keyframes twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
 
 .btn{background:none;border:1px solid var(--ember);color:var(--ember);border-radius:999px;padding:7px 16px;cursor:pointer;font-size:15px;
-  transition:background .25s,transform .25s,box-shadow .25s,color .25s}
-.btn:hover{background:rgba(var(--ember-rgb),.14);transform:translateY(-1px);box-shadow:0 6px 18px rgba(var(--ember-rgb),.18)}
-.btn.solid{background:var(--rose);border-color:var(--rose);color:#fff4ee;font-weight:500}
-.btn.solid:hover{background:#ee6d82;box-shadow:0 8px 24px rgba(var(--rose-rgb),.45)}
+  transition:background .25s,transform .25s,box-shadow .25s,color .25s}.btn:hover{background:rgba(var(--ember-rgb),.14);transform:translateY(-1px);box-shadow:0 6px 18px rgba(var(--ember-rgb),.18)}
+.btn.solid{background:var(--rose);border-color:var(--rose);color:#fff4ee;font-weight:500}.btn.solid:hover{background:#ee6d82;box-shadow:0 8px 24px rgba(var(--rose-rgb),.45)}
 .btn.quiet{border-color:var(--line);color:var(--ink-soft)}
 .btn.small{padding:3px 11px;font-size:13px}
 .btn[disabled]{opacity:.5;cursor:default}
@@ -152,9 +150,8 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .empty{color:var(--ink-soft);font-style:italic;max-width:36ch;margin:0}
 .tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose)}
 .ghost{opacity:.55}
-.edit{background:none;border:0;color:var(--ink-soft);cursor:pointer;font-size:13px;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}
-.edit:hover{color:var(--ember)}
-.paper .edit{color:#8a6a70}.paper .edit:hover{color:#b3243c}
+.edit{background:none;border:0;color:var(--ink-soft);cursor:pointer;font-size:13px;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}.edit:hover{color:var(--ember)}
+.paper .edit{color:#8a6a70}.book:not(.nohover) .paper .edit:hover{color:#b3243c}
 
 /* dedication */
 .dayno{font-family:var(--display);font-size-adjust:none;font-size:clamp(54px,9cqw,96px);line-height:1;font-variant-numeric:lining-nums tabular-nums;
@@ -180,31 +177,19 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .toc .t i{font-size:13.5px;color:var(--ink-soft);opacity:0;transform:translateY(-4px);transition:opacity .4s,transform .4s}
 .toc .dots{position:relative;flex:1;min-width:16px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,var(--line) 0 40%,var(--ember) 50%,var(--line) 60% 100%);background-size:300% 100%;background-position:100% 0}
-.toc .n{position:relative;font-size:13px;color:var(--ink-soft);font-variant-numeric:lining-nums tabular-nums;border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap;transition:color .35s,border-color .35s,background .35s}
-/* the row itself stays still; only what is inside it moves, so the pointer can never fall off its edge */
-.toc a:hover .t,.toc a:focus-visible .t{transform:translateX(6px)}
-.toc a:hover::before,.toc a:focus-visible::before{opacity:1}
-.toc a:hover .mark,.toc a:focus-visible .mark{transform:translateX(3px) rotate(144deg) scale(1.35);filter:drop-shadow(0 0 8px var(--ember))}
-.toc a:hover .mark path,.toc a:focus-visible .mark path{fill:var(--ember)}
-.toc a:hover .t b,.toc a:focus-visible .t b{color:var(--ember)}
-.toc a:hover .t i,.toc a:focus-visible .t i{opacity:1;transform:none}
-.toc a:hover .dots,.toc a:focus-visible .dots{animation:run 1.3s linear infinite}
-@keyframes run{from{background-position:100% 0}to{background-position:0 0}}
-.toc a:hover .n,.toc a:focus-visible .n{color:#fff4ee;border-color:var(--rose);background:rgba(var(--rose-rgb),.35)}
+.toc .n{position:relative;font-size:13px;color:var(--ink-soft);font-variant-numeric:lining-nums tabular-nums;border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap;transition:color .35s,border-color .35s,background .35s}/* the row itself stays still; only what is inside it moves,so the pointer can never fall off its edge */
+.book:not(.nohover) .toc a:hover .t,.toc a:focus-visible .t{transform:translateX(6px)}.book:not(.nohover) .toc a:hover::before,.toc a:focus-visible::before{opacity:1}.book:not(.nohover) .toc a:hover .mark,.toc a:focus-visible .mark{transform:translateX(3px) rotate(144deg) scale(1.35);filter:drop-shadow(0 0 8px var(--ember))}.book:not(.nohover) .toc a:hover .mark path,.toc a:focus-visible .mark path{fill:var(--ember)}.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b{color:var(--ember)}.book:not(.nohover) .toc a:hover .t i,.toc a:focus-visible .t i{opacity:1;transform:none}.book:not(.nohover) .toc a:hover .dots,.toc a:focus-visible .dots{animation:run 1.3s linear infinite}
+@keyframes run{from{background-position:100% 0}to{background-position:0 0}}.book:not(.nohover) .toc a:hover .n,.toc a:focus-visible .n{color:#fff4ee;border-color:var(--rose);background:rgba(var(--rose-rgb),.35)}
 
 /* story */
 .thread{list-style:none;margin:0;padding:0 0 0 22px;display:flex;flex-direction:column;gap:18px;border-left:1px solid var(--line)}
 .thread li{position:relative;display:flex;gap:14px;align-items:flex-start;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
-.thread li::before{content:"";position:absolute;left:-27px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--ember);box-shadow:0 0 12px 2px rgba(var(--ember-rgb),.6);transition:transform .35s,box-shadow .35s,background .35s}
-.thread li:hover{transform:translateX(6px)}
-.thread li:hover::before{transform:scale(1.7);background:var(--rose);box-shadow:0 0 18px 5px rgba(var(--rose-rgb),.7)}
-.thread li:hover h3{color:var(--ember)}
+.thread li::before{content:"";position:absolute;left:-27px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--ember);box-shadow:0 0 12px 2px rgba(var(--ember-rgb),.6);transition:transform .35s,box-shadow .35s,background .35s}.book:not(.nohover) .thread li:hover{transform:translateX(6px)}.book:not(.nohover) .thread li:hover::before{transform:scale(1.7);background:var(--rose);box-shadow:0 0 18px 5px rgba(var(--rose-rgb),.7)}.book:not(.nohover) .thread li:hover h3{color:var(--ember)}
 .thread .txt{flex:1;min-width:0}
 .thread .when{font-size:13px;color:var(--ink-soft);font-variant-numeric:lining-nums tabular-nums}
 .thread h3{font-size:22px;line-height:1.15;margin:2px 0 4px;transition:color .35s;overflow-wrap:anywhere}
 .thread p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
-.thumb{flex:none;width:84px;height:84px;background:var(--paper);padding:4px;transform:rotate(2deg);box-shadow:0 6px 14px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
-.thread li:hover .thumb{transform:rotate(-2deg) scale(1.12)}
+.thumb{flex:none;width:84px;height:84px;background:var(--paper);padding:4px;transform:rotate(2deg);box-shadow:0 6px 14px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.2,.7,.2,1)}.book:not(.nohover) .thread li:hover .thumb{transform:rotate(-2deg) scale(1.12)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* photos */
@@ -215,11 +200,9 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .paper{background:var(--paper);color:var(--paper-ink);box-shadow:0 10px 24px rgba(0,0,0,.45),0 0 30px rgba(var(--rose-rgb),.12);
   transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s}
 .shot{margin:0;padding:9px 9px 6px;display:flex;flex-direction:column;gap:4px}
-.slot:nth-child(odd) .shot{transform:rotate(-1.6deg)}.slot:nth-child(even) .shot{transform:rotate(1.3deg)}
-.shots .shot:hover,.notes .note:hover{transform:rotate(0) translateY(-6px) scale(1.035);box-shadow:0 22px 40px rgba(0,0,0,.6),0 0 46px rgba(var(--rose-rgb),.35);z-index:2}
+.slot:nth-child(odd) .shot{transform:rotate(-1.6deg)}.slot:nth-child(even) .shot{transform:rotate(1.3deg)}.book:not(.nohover) .shots .shot:hover,.book:not(.nohover) .notes .note:hover{transform:rotate(0) translateY(-6px) scale(1.035);box-shadow:0 22px 40px rgba(0,0,0,.6),0 0 46px rgba(var(--rose-rgb),.35);z-index:2}
 .ph{flex:none;width:240px;height:180px;background:#d9c3b6;display:flex;align-items:center;justify-content:center;color:#7d5f5c;font-style:italic;font-size:14px;overflow:hidden}
-.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
-.shot:hover .ph img{transform:scale(1.04)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;transition:transform .8s cubic-bezier(.2,.7,.2,1)}.book:not(.nohover) .shot:hover .ph img{transform:scale(1.04)}
 .thumb img{cursor:zoom-in}
 .ph.missing img{display:none}.ph.missing::after{content:"This photo can't be shown here"}
 .shot figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -241,21 +224,17 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .skymap g.hot .halo{fill:rgba(var(--rose-rgb),.55)}
 .skymap g.hot text{fill:var(--ember);font-size:13px}
 .places{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.places li{display:flex;gap:12px;align-items:baseline;padding:6px 8px;border-radius:8px;transition:background .3s,transform .35s cubic-bezier(.2,.7,.2,1)}
-.places li:hover{background:rgba(var(--rose-rgb),.16);transform:translateX(6px)}
-.places .num{font-family:var(--display);font-size-adjust:none;color:var(--ember);min-width:1.6em;font-variant-numeric:lining-nums tabular-nums;transition:text-shadow .3s}
-.places li:hover .num{text-shadow:0 0 12px var(--ember)}
+.places li{display:flex;gap:12px;align-items:baseline;padding:6px 8px;border-radius:8px;transition:background .3s,transform .35s cubic-bezier(.2,.7,.2,1)}.book:not(.nohover) .places li:hover{background:rgba(var(--rose-rgb),.16);transform:translateX(6px)}
+.places .num{font-family:var(--display);font-size-adjust:none;color:var(--ember);min-width:1.6em;font-variant-numeric:lining-nums tabular-nums;transition:text-shadow .3s}.book:not(.nohover) .places li:hover .num{text-shadow:0 0 12px var(--ember)}
 .places .txt{flex:1;min-width:0}
 .places strong{font-family:var(--display);font-size-adjust:none;font-weight:400;font-size:19px;overflow-wrap:anywhere}
 .places small{display:block;color:var(--ink-soft);font-size:13px;overflow-wrap:anywhere}
 
 /* wishes */
 .wishes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-.wishes li{display:flex;gap:10px;align-items:flex-start;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
-.wishes li:hover{transform:translateX(6px)}
+.wishes li{display:flex;gap:10px;align-items:flex-start;transition:transform .35s cubic-bezier(.2,.7,.2,1)}.book:not(.nohover) .wishes li:hover{transform:translateX(6px)}
 .wishes label{flex:1;min-width:0;display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-family:var(--hand);font-size-adjust:none;font-size:24px;line-height:1.2;overflow-wrap:anywhere}
-.wishes input{appearance:none;flex:none;width:20px;height:20px;margin-top:5px;border:1.5px solid var(--ember);border-radius:50%;cursor:pointer;transition:box-shadow .3s,transform .3s}
-.wishes li:hover input{transform:scale(1.15);box-shadow:0 0 12px rgba(var(--ember-rgb),.5)}
+.wishes input{appearance:none;flex:none;width:20px;height:20px;margin-top:5px;border:1.5px solid var(--ember);border-radius:50%;cursor:pointer;transition:box-shadow .3s,transform .3s}.book:not(.nohover) .wishes li:hover input{transform:scale(1.15);box-shadow:0 0 12px rgba(var(--ember-rgb),.5)}
 .wishes input:checked{background:radial-gradient(circle,var(--rose) 45%,transparent 50%);border-color:var(--rose);box-shadow:0 0 14px rgba(var(--rose-rgb),.8)}
 .wishes .done span{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--rose)}
 .thread li::after,.places li::after,.wishes li::after,.watch li::after{content:"";position:absolute;top:0;bottom:0;left:-8px;width:8px}
@@ -263,11 +242,9 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 /* watch list: each title is a little ticket, with a stub to tick once you have seen it */
 .watch{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .watch li{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:rgba(var(--rose-rgb),.08);
-  transition:transform .35s cubic-bezier(.2,.7,.2,1),background .3s,border-color .3s}
-.watch li:hover{transform:translateX(6px);background:rgba(var(--rose-rgb),.17);border-color:rgba(var(--ember-rgb),.45)}
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),background .3s,border-color .3s}.book:not(.nohover) .watch li:hover{transform:translateX(6px);background:rgba(var(--rose-rgb),.17);border-color:rgba(var(--ember-rgb),.45)}
 .watch label{flex:none;display:flex;align-items:center;padding:0 13px;border-right:1px dashed rgba(var(--ember-rgb),.35);cursor:pointer}
-.watch input{appearance:none;width:20px;height:20px;margin:0;border:1.5px solid var(--ember);border-radius:50%;cursor:pointer;transition:box-shadow .3s,transform .3s}
-.watch li:hover input{transform:scale(1.15);box-shadow:0 0 12px rgba(var(--ember-rgb),.5)}
+.watch input{appearance:none;width:20px;height:20px;margin:0;border:1.5px solid var(--ember);border-radius:50%;cursor:pointer;transition:box-shadow .3s,transform .3s}.book:not(.nohover) .watch li:hover input{transform:scale(1.15);box-shadow:0 0 12px rgba(var(--ember-rgb),.5)}
 .watch input:checked{background:radial-gradient(circle,var(--rose) 45%,transparent 50%);border-color:var(--rose);box-shadow:0 0 14px rgba(var(--rose-rgb),.8)}
 .watch .txt{flex:1;min-width:0;padding:9px 12px;display:flex;flex-direction:column;justify-content:center}
 .watch strong{font-family:var(--display);font-size-adjust:none;font-weight:400;font-size:19px;line-height:1.2;overflow-wrap:anywhere}
@@ -280,11 +257,9 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 
 /* tabs */
 .tabs{display:flex;align-items:center;justify-content:center;gap:6px 14px;flex-wrap:wrap;padding:6px 16px 14px}
-.tabs a{color:var(--ink-soft);text-decoration:none;font-size:14px;padding:4px 2px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s}
-.tabs a:hover{color:var(--ink)}
+.tabs a{color:var(--ink-soft);text-decoration:none;font-size:14px;padding:4px 2px;border-bottom:1px solid transparent;transition:color .25s,border-color .25s}.tabs a:hover{color:var(--ink)}
 .tabs a[aria-current="true"]{color:var(--ember);border-color:var(--rose)}
-.arrow{background:none;border:1px solid var(--line);border-radius:50%;width:36px;height:36px;cursor:pointer;color:var(--ink);font-size:17px;line-height:1;transition:border-color .25s,color .25s,transform .25s}
-.arrow:hover:not([disabled]){border-color:var(--rose);color:var(--ember);transform:scale(1.1)}
+.arrow{background:none;border:1px solid var(--line);border-radius:50%;width:36px;height:36px;cursor:pointer;color:var(--ink);font-size:17px;line-height:1;transition:border-color .25s,color .25s,transform .25s}.arrow:hover:not([disabled]){border-color:var(--rose);color:var(--ember);transform:scale(1.1)}
 .arrow[disabled]{opacity:.3;cursor:default}
 
 /* dialog */
@@ -348,8 +323,7 @@ form h2{font-size:21px}
   .tabs{gap:2px 10px;padding-bottom:10px}
   .tabs a{font-size:13px}
 }
-@media (prefers-reduced-motion:reduce){
-  .glow,.star,.dayno,.enter .toc li,.toc a:hover .dots{animation:none}
+@media (prefers-reduced-motion:reduce){.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots{animation:none}
   *{transition-duration:.01s!important}
 }
 </style>
@@ -918,7 +892,7 @@ function go(n){
   if (location.hash.slice(1) !== sct){ try { history.replaceState(null, '', '#' + sct); } catch { location.hash = sct; } }
   if (reduced || !spread.animate){ render(); return; }
   busy = true;
-  book.classList.add('turning');
+  book.classList.add('turning', 'nohover');
   spread.querySelectorAll('.enter').forEach(e => e.classList.remove('enter'));
   chrome();   // tabs follow at once, and the book starts sliding open or shut with the cover
   if (st === 2) turnWide(dir, from); else turnSingle(dir);
@@ -1325,6 +1299,18 @@ $('install').addEventListener('click', async () => {
   installEvent = null; $('install').hidden = true;
 });
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+/* Hover effects (rows sliding, photos straightening) only for a real mouse that has moved since the last
+   page turn. Otherwise whatever lands under a resting pointer, or under the spot a finger last touched,
+   would shift a few pixels the moment the page settles. */
+const touchOnly = matchMedia('(hover: none)');
+const hoverMode = () => { if (touchOnly.matches) book.classList.add('nohover'); };
+hoverMode();
+if (touchOnly.addEventListener) touchOnly.addEventListener('change', () => { if (!touchOnly.matches) book.classList.remove('nohover'); hoverMode(); });
+addEventListener('pointermove', e => {
+  if (busy || touchOnly.matches || e.pointerType !== 'mouse' || !(e.movementX || e.movementY)) return;
+  book.classList.remove('nohover');
+}, {passive: true});
 
 addEventListener('online', refresh);
 addEventListener('offline', offlineNote);
