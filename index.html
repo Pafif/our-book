@@ -428,6 +428,7 @@ let canWrite = false, loaded = false;
 let items = [], settings = {};
 let pages = [], pos = 0, busy = false, focusId = null;
 const urlCache = new Map();   // photo path -> signed link, so each photo is fetched once
+const urlReady = new Map();   // the same links once known, so a page can show its photos the moment it is built
 
 const SECTIONS = {
   story:  {title:'Our story',           kind:'milestone', add:'Add a milestone', per:3},
@@ -473,6 +474,7 @@ function photoUrl(path){
   if (!urlCache.has(path)){
     const p = sb.storage.from('photos').createSignedUrl(path, 60*60*24*7).then(({data, error}) => {
       if (error || !data) throw error || new Error('no link');
+      urlReady.set(path, data.signedUrl);
       return data.signedUrl;
     });
     p.catch(() => urlCache.delete(path));   // try again next time, for example once back online
@@ -518,17 +520,46 @@ function measureMissing(){
     photoUrl(i.photo.path).then(u => { const im = new Image(); im.onload = () => learnDims(i.id, im.naturalWidth, im.naturalHeight); im.src = u; }, () => {});
   });
 }
+/* Ask for every photo's link in one go when the book loads, so pages never wait for them. */
+async function signAll(){
+  if (!sb) return;
+  const paths = [...new Set(items.filter(i => i.photo && i.photo.path && !urlReady.has(i.photo.path)).map(i => i.photo.path))];
+  if (!paths.length) return;
+  try {
+    const {data, error} = await sb.storage.from('photos').createSignedUrls(paths, 60*60*24*7);
+    if (error || !Array.isArray(data)) return;
+    data.forEach(r => { if (r && r.signedUrl && r.path){ urlReady.set(r.path, r.signedUrl); urlCache.set(r.path, Promise.resolve(r.signedUrl)); } });
+  } catch {}
+  prefetchAround();
+}
+/* Download the photos of the spreads either side of the open one, so a page turn shows them straight away. */
+const fetched = new Set();
+function prefetchAround(){
+  if (!sb || !pages.length) return;
+  const st = step();
+  for (let i = Math.max(0, pos - st); i < Math.min(pages.length, pos + 2*st); i++){
+    const ids = (pages[i] && pages[i].ids) || [];
+    for (const id of ids){
+      const it = items.find(x => x.id === id), path = it && it.photo && it.photo.path;
+      if (!path || fetched.has(path)) continue;
+      fetched.add(path);
+      photoUrl(path).then(u => { const im = new Image(); im.decoding = 'async'; im.src = u; if (im.decode) im.decode().catch(() => {}); }, () => fetched.delete(path));
+    }
+  }
+}
 function photoBox(item, cls){
   const box = h('div', {class: cls, 'data-id': item.id});
   const p = item.photo;
   if (!p){ box.textContent = 'no photo'; return box; }
   const d = photoDims(p);
   box.dataset.ratio = d ? String(d[0]/d[1]) : String(4/3);
-  const img = h('img', {alt: str(item.title) || 'Photo', loading:'lazy'});
+  const img = h('img', {alt: str(item.title) || 'Photo', decoding:'async'});
   img.addEventListener('error', () => box.classList.add('missing'));
   img.addEventListener('load', () => learnDims(item.id, img.naturalWidth, img.naturalHeight));
-  if (sb && typeof p.path === 'string' && p.path) photoUrl(p.path).then(u => { img.src = u; }, () => box.classList.add('missing'));
-  else box.classList.add('missing');
+  if (sb && typeof p.path === 'string' && p.path){
+    if (urlReady.has(p.path)) img.src = urlReady.get(p.path);
+    else photoUrl(p.path).then(u => { img.src = u; }, () => box.classList.add('missing'));
+  } else box.classList.add('missing');
   box.append(img);
   return box;
 }
@@ -573,7 +604,8 @@ async function storePhoto(id, file){
   const path = id + '-' + Date.now().toString(36) + '.jpg';
   const {error} = await sb.storage.from('photos').upload(path, blob, {contentType:'image/jpeg', upsert:false});
   if (error) throw error;
-  urlCache.set(path, Promise.resolve(URL.createObjectURL(blob)));
+  const local = URL.createObjectURL(blob);
+  urlCache.set(path, Promise.resolve(local)); urlReady.set(path, local);
   return {path, w, h};
 }
 function dropPhoto(p){ if (sb && p && p.path) sb.storage.from('photos').remove([p.path]).catch(() => {}); }
@@ -831,6 +863,7 @@ function mkPage(i, slot){
   return el;
 }
 function chrome(){
+  prefetchAround();
   const st = step(), cur = sectionAt(pos);
   document.querySelectorAll('.tabs a').forEach(a => a.setAttribute('aria-current', String(a.dataset.s === cur)));
   $('prev').disabled = pos <= 0; $('next').disabled = pos >= pages.length - st;
@@ -958,6 +991,10 @@ function turnWide(dir, from){
   }
   spread.append(leaf);
   scrolls.forEach(([c, y]) => { if (y) c.scrollTop = y; });
+  leaf.querySelectorAll('.ph img:not([src]), .thumb img:not([src])').forEach(ci => {
+    const it = items.find(x => x.id === ci.parentElement.dataset.id);
+    if (it && it.photo && it.photo.path) photoUrl(it.photo.path).then(u => { ci.src = u; }, () => {});
+  });
   flip.remove();
 
   const T = Array.from({length: SAMPLES + 1}, (_, i) => i/SAMPLES);
@@ -1202,7 +1239,7 @@ async function load(){
   items = (m.data || []).map(r => ({...(r.data || {}), id: r.id})).filter(i => typeof i.kind === 'string');
   if (!b.error) settings = b.data && b.data.data ? {...b.data.data} : {};
   loaded = true; changed();
-  measureMissing();
+  signAll().then(measureMissing);
 }
 function refresh(){ if (!sb || !uid) return; load().then(offlineNote, () => offlineNote()); }
 
