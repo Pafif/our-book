@@ -157,6 +157,8 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .kick{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
 .running{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
 .empty{color:var(--ink-soft);font-style:italic;max-width:36ch;margin:0}
+/* the line under the heart: centred beneath it, lines of even length */
+.heartnote{max-width:40ch;margin:0 auto;text-align:center;text-wrap:balance;font-size:17px;line-height:1.45}
 .tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose)}
 .ghost{opacity:.55}
 .edit{background:none;border:0;color:var(--ink-soft);cursor:pointer;font-size:13px;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}.edit:hover{color:var(--ember)}
@@ -771,7 +773,7 @@ function drawSky(el){
       s('text', {x:W/2, y:H/2 + 14, 'text-anchor':'middle'}, list.length === 1 ? 'place so far' : 'places so far'));
   }
   el.append(svg);
-  el.append(h('p', {class:'empty', text: !loaded ? '' : list.length
+  el.append(h('p', {class:'empty heartnote', text: !loaded ? '' : list.length
     ? 'This heart represents our passion for travelling and making new memories together ~ the more we travel, the more stars we make.'
     : 'This heart represents our passion for travelling and making new memories together ~ the more we travel, the more stars we make.'}));
 }
