@@ -680,8 +680,7 @@ function drawDedication(el){
     h('span', {class:'kick', text:'this book belongs to'}),
     h('div', {class:'names', text: n || 'the two of us'}),
     d ? [h('div', {class:'dayno', text: d.toLocaleString()}), h('div', {text: 'days together, since ' + fmtDay(settings.since)})]
-      : h('p', {class:'empty', text: loaded ? 'Add your names and the day it all began, and this page will count your days together.' : ''}),
-    canWrite && h('div', {}, h('button', {class:'btn small', type:'button', text: n ? 'Edit names and date' : 'Add names and date', onclick: () => openForm('settings')}))));
+      : h('p', {class:'empty', text: loaded ? 'Add your names and the day it all began, and this page will count your days together.' : ''})));
 }
 const BLURB = {story:'the milestones, in the order they happened', photos:'the two of you, in pictures', notes:'little letters, kept for good',
   places:'every place, a star on your heart', wishes:'everything still to do together', watch:'films and series for our evenings'};
