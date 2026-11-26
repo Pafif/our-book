@@ -180,14 +180,22 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
   background:linear-gradient(90deg,rgba(var(--rose-rgb),.22),rgba(var(--ember-rgb),.08) 60%,transparent);box-shadow:inset 0 0 0 1px rgba(var(--ember-rgb),.2)}
 .toc .mark{position:relative;flex:none;width:22px;height:22px;transition:transform .6s cubic-bezier(.2,.7,.2,1),filter .35s}
 .toc .mark path{fill:var(--ink-soft);transition:fill .35s}
-.toc .t{position:relative;display:flex;flex-direction:column;min-width:0;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
-.toc .t b{font-family:var(--display);font-size-adjust:none;font-weight:400;font-size:clamp(18px,2.2cqw,23px);line-height:1.15;transition:color .35s}
+.toc .t{display:contents}
+/* star, title, line and count share one line, centred on the title; the description has its own row below,
+   always reserved, so nothing moves when it fades in */
+.toc a{display:grid;grid-template-columns:22px auto minmax(16px,1fr) auto;column-gap:12px;row-gap:2px;align-items:center}
+.toc .mark{grid-column:1;grid-row:1}
+.toc .t b{grid-column:2;grid-row:1;position:relative;min-width:0;transition:color .35s,transform .35s cubic-bezier(.2,.7,.2,1)}
+.toc .t i{grid-column:2 / 5;grid-row:2;position:relative}
+.toc .dots{grid-column:3;grid-row:1}
+.toc .n{grid-column:4;grid-row:1}
+.toc .t b{font-family:var(--display);font-size-adjust:none;font-weight:400;font-size:clamp(18px,2.2cqw,23px);line-height:1.15}
 /* the description always keeps its place and only fades in, so hovering never changes a row's size */
 .toc .t i{font-size:13.5px;color:var(--ink-soft);opacity:0;transform:translateY(-4px);transition:opacity .4s,transform .4s}
 .toc .dots{position:relative;flex:1;min-width:16px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,var(--line) 0 40%,var(--ember) 50%,var(--line) 60% 100%);background-size:300% 100%;background-position:100% 0}
 .toc .n{position:relative;font-size:13px;color:var(--ink-soft);font-variant-numeric:lining-nums tabular-nums;border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap;transition:color .35s,border-color .35s,background .35s}/* the row itself stays still; only what is inside it moves,so the pointer can never fall off its edge */
-.book:not(.nohover) .toc a:hover .t,.toc a:focus-visible .t{transform:translateX(6px)}.book:not(.nohover) .toc a:hover::before,.toc a:focus-visible::before{opacity:1}.book:not(.nohover) .toc a:hover .mark,.toc a:focus-visible .mark{transform:translateX(3px) rotate(144deg) scale(1.35);filter:drop-shadow(0 0 8px var(--ember))}.book:not(.nohover) .toc a:hover .mark path,.toc a:focus-visible .mark path{fill:var(--ember)}.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b{color:var(--ember)}.book:not(.nohover) .toc a:hover .t i,.toc a:focus-visible .t i{opacity:1;transform:none}.book:not(.nohover) .toc a:hover .dots,.toc a:focus-visible .dots{animation:run 1.3s linear infinite}
+.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b{transform:translateX(6px)}.book:not(.nohover) .toc a:hover::before,.toc a:focus-visible::before{opacity:1}.book:not(.nohover) .toc a:hover .mark,.toc a:focus-visible .mark{transform:translateX(3px) rotate(144deg) scale(1.35);filter:drop-shadow(0 0 8px var(--ember))}.book:not(.nohover) .toc a:hover .mark path,.toc a:focus-visible .mark path{fill:var(--ember)}.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b{color:var(--ember)}.book:not(.nohover) .toc a:hover .t i,.toc a:focus-visible .t i{opacity:1;transform:translateX(6px)}.book:not(.nohover) .toc a:hover .dots,.toc a:focus-visible .dots{animation:run 1.3s linear infinite}
 @keyframes run{from{background-position:100% 0}to{background-position:0 0}}.book:not(.nohover) .toc a:hover .n,.toc a:focus-visible .n{color:#fff4ee;border-color:var(--rose);background:rgba(var(--rose-rgb),.35)}
 
 /* story */
@@ -444,7 +452,7 @@ function s(tag, attrs, text){
 }
 const str = v => typeof v === 'string' ? v : '';
 function parseDay(d){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str(d)); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; }
-function fmtDay(d){ const x = parseDay(d); return x ? x.toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'}) : ''; }
+function fmtDay(d){ const x = parseDay(d); if (!x) return ''; let m = ''; try { m = x.toLocaleDateString('sk-SK', {month:'long'}); } catch { m = String(x.getMonth() + 1) + '.'; } return x.getDate() + '. ' + m + ' ' + x.getFullYear(); }
 function today(){ const n = new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
 function dayNo(d){ const a = parseDay(settings.since), b = parseDay(d); if (!a || !b) return null; const n = Math.round((b - a)/864e5) + 1; return n >= 1 ? n : null; }
 function names(){ const a = str(settings.a).trim(), b = str(settings.b).trim(); return a && b ? a+' & '+b : (a || b || ''); }
