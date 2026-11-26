@@ -47,6 +47,15 @@ body{
 .top,.stage,.tabs{position:relative;z-index:1}
 button,input,textarea,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ember);outline-offset:2px;border-radius:4px}
+/* no blue tap flash on phones; a gentle press in the book's own colours instead */
+*{-webkit-tap-highlight-color:transparent}
+button,a,label,.ph img,.thumb img{touch-action:manipulation}
+.btn:active,.arrow:active:not([disabled]),.edit:active,.tabs a:active,.seg label:active span{transform:scale(.94);transition-duration:.08s}
+.btn:active{background:rgba(var(--ember-rgb),.22)}
+.btn.solid:active{background:#d94a61}
+.tabs a:active,.edit:active{color:var(--ember)}
+.toc a:active::before{opacity:1}
+@media (hover:none){.btn:hover{transform:none;box-shadow:none}.btn:not(.solid):hover{background:none}.btn.solid:hover{background:var(--rose)}.arrow:hover:not([disabled]){transform:none;border-color:var(--line);color:var(--ink)}}
 h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin:0;text-wrap:balance}
 
 .top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:12px 20px 4px}
