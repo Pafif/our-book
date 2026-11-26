@@ -679,7 +679,7 @@ function drawDedication(el){
   el.append(h('div', {class:'ded'},
     h('span', {class:'kick', text:'this book belongs to'}),
     h('div', {class:'names', text: n || 'the two of us'}),
-    d ? [h('div', {class:'dayno', text: d.toLocaleString()}), h('div', {text: 'days together, counting from ' + fmtDay(settings.since)})]
+    d ? [h('div', {class:'dayno', text: d.toLocaleString()}), h('div', {text: 'days together, since ' + fmtDay(settings.since)})]
       : h('p', {class:'empty', text: loaded ? 'Add your names and the day it all began, and this page will count your days together.' : ''}),
     canWrite && h('div', {}, h('button', {class:'btn small', type:'button', text: n ? 'Edit names and date' : 'Add names and date', onclick: () => openForm('settings')}))));
 }
