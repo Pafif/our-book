@@ -414,10 +414,10 @@ const urlCache = new Map();   // photo path -> signed link, so each photo is fet
 const urlReady = new Map();   // the same links once known, so a page can show its photos the moment it is built
 
 const SECTIONS = {
-  story:  {title:'Our story',           kind:'milestone', add:'Add a milestone', per:3},
+  story:  {title:'Milestones',           kind:'milestone', add:'Add a milestone', per:3},
   photos: {title:'Gallery',         kind:'photo',     add:'Add a photo',     per:2},
-  notes:  {title:'Notes to each other', kind:'note',      add:'Write a note',    per:2},
-  places: {title:"Places we've been",   kind:'place',     add:'Add a place'},
+  notes:  {title:'Notes', kind:'note',      add:'Write a note',    per:2},
+  places: {title:"Travel",   kind:'place',     add:'Add a place'},
   wishes: {title:'Goals',        kind:'wish',      add:'Add a wish',      per:8},
   watch:  {title:'Watch list',          kind:'watch',     add:'Add a film or series', per:6},
 };
