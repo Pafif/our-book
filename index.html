@@ -217,8 +217,9 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .toc .dots{position:relative;flex:1;min-width:16px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,var(--line) 0 40%,var(--ember) 50%,var(--line) 60% 100%);background-size:300% 100%;background-position:100% 0}
 .toc .n{position:relative;font-size:13px;color:var(--ink-soft);font-variant-numeric:lining-nums tabular-nums;border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap;transition:color .35s,border-color .35s,background .35s}/* the row itself stays still; only what is inside it moves,so the pointer can never fall off its edge */
-.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b{transform:translateX(6px)}.book:not(.nohover) .toc a:hover::before,.toc a:focus-visible::before{opacity:1}.book:not(.nohover) .toc a:hover .mark,.toc a:focus-visible .mark{transform:translateX(3px) rotate(144deg) scale(1.35);filter:drop-shadow(0 0 8px var(--ember))}.book:not(.nohover) .toc a:hover .mark path,.toc a:focus-visible .mark path{fill:var(--ember)}.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b{color:var(--ember)}.book:not(.nohover) .toc a:hover .t i,.toc a:focus-visible .t i{opacity:1;transform:translateX(6px)}.book:not(.nohover) .toc a:hover .dots,.toc a:focus-visible .dots{animation:run 1.3s linear infinite}
-@keyframes run{from{background-position:100% 0}to{background-position:0 0}}.book:not(.nohover) .toc a:hover .n,.toc a:focus-visible .n{color:#fff4ee;border-color:var(--rose);background:rgba(var(--rose-rgb),.35)}
+.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b,so the pointer can never fall off its edge */
+.toc a.tap .t b{transform:translateX(6px)}.book:not(.nohover) .toc a:hover::before,.toc a:focus-visible::before,.toc a.tap::before{opacity:1}.book:not(.nohover) .toc a:hover .mark,.toc a:focus-visible .mark,.toc a.tap .mark{transform:translateX(3px) rotate(144deg) scale(1.35);filter:drop-shadow(0 0 8px var(--ember))}.book:not(.nohover) .toc a:hover .mark path,.toc a:focus-visible .mark path,.toc a.tap .mark path{fill:var(--ember)}.book:not(.nohover) .toc a:hover .t b,.toc a:focus-visible .t b,.toc a.tap .t b{color:var(--ember)}.book:not(.nohover) .toc a:hover .t i,.toc a:focus-visible .t i,.toc a.tap .t i{opacity:1;transform:translateX(6px)}.book:not(.nohover) .toc a:hover .dots,.toc a:focus-visible .dots,.toc a.tap .dots{animation:run 1.3s linear infinite}
+@keyframes run{from{background-position:100% 0}to{background-position:0 0}}.book:not(.nohover) .toc a:hover .n,.toc a:focus-visible .n,.toc a.tap .n{color:#fff4ee;border-color:var(--rose);background:rgba(var(--rose-rgb),.35)}
 
 /* story */
 .thread{list-style:none;margin:0;padding:0 0 0 22px;display:flex;flex-direction:column;gap:18px;border-left:1px solid var(--line)}
@@ -275,9 +276,56 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .wishes label{flex:1;min-width:0;display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-family:var(--hand);font-size-adjust:none;font-size:24px;line-height:1.2;overflow-wrap:anywhere}
 .wishes input{appearance:none;flex:none;width:20px;height:20px;margin-top:5px;border:1.5px solid var(--ember);border-radius:50%;cursor:pointer;transition:box-shadow .3s,transform .3s}.book:not(.nohover) .wishes li:hover input{transform:scale(1.15);box-shadow:0 0 12px rgba(var(--ember-rgb),.5)}
 .wishes input:checked{background:radial-gradient(circle,var(--rose) 45%,transparent 50%);border-color:var(--rose);box-shadow:0 0 14px rgba(var(--rose-rgb),.8)}
-.wishes .done span{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--rose)}
+/* crossing out: a line drawn through the words (across every line of a long one), the box pops,
+   a few sparks fly; unticking rubs the line back out */
+.strike{background-image:linear-gradient(var(--rose),var(--rose));background-repeat:no-repeat;background-position:0 62%;background-size:0 2px;transition:color .4s}
+.done .strike{background-size:100% 2px;color:var(--ink-soft)}
+.striking .strike{animation:strike .6s cubic-bezier(.65,0,.25,1) forwards}
+.unstriking .strike{animation:unstrike .45s cubic-bezier(.5,0,.75,0) forwards}
+@keyframes strike{from{background-size:0 2px}to{background-size:100% 2px;color:var(--ink-soft)}}
+@keyframes unstrike{from{background-size:100% 2px;color:var(--ink-soft)}to{background-size:0 2px;color:var(--ink)}}
+.striking input{animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.spark{position:absolute;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;pointer-events:none;background:#ffe9c2;box-shadow:0 0 8px 2px rgba(var(--ember-rgb),.8)}
+.spark.r{background:#ffd3d9;box-shadow:0 0 8px 2px rgba(var(--rose-rgb),.85)}
 .thread li::after,.places li::after,.wishes li::after,.watch li::after{content:"";position:absolute;top:0;bottom:0;left:-8px;width:8px}
 .places li,.wishes li,.watch li{position:relative}
+/* calendar */
+.cal{display:flex;flex-direction:column;gap:10px;min-height:0}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mhead strong{font-family:var(--display);font-size-adjust:none;font-weight:500;letter-spacing:.06em;font-size:19px;text-transform:capitalize}
+.arrow.small{width:30px;height:30px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.wd{text-align:center;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);padding-bottom:2px}
+.day{position:relative;aspect-ratio:1/.86;min-height:30px;border:1px solid transparent;border-radius:8px;background:rgba(var(--rose-rgb),.06);color:var(--ink);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;transition:background .25s,border-color .25s,transform .25s}
+.day .n{font-size:16px;line-height:1;font-variant-numeric:lining-nums tabular-nums}
+.day .dots{display:flex;gap:3px;height:5px}
+.day .dots i,.legend i,.occ .dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex:none}
+.day.out{opacity:.35}
+.day.has{background:rgba(var(--rose-rgb),.14)}
+.day.today{border-color:var(--ember);box-shadow:0 0 12px rgba(var(--ember-rgb),.35)}
+.day.picked{background:rgba(var(--rose-rgb),.42);border-color:var(--rose)}
+.book:not(.nohover) .day:hover{background:rgba(var(--rose-rgb),.26);transform:translateY(-1px)}
+.day:active{transform:scale(.93)}
+i.plan,.occ.plan .dot{background:var(--rose);box-shadow:0 0 6px rgba(var(--rose-rgb),.8)}
+i.yearly,.occ.yearly .dot{background:#ff9fc0;box-shadow:0 0 6px rgba(255,159,192,.8)}
+i.anniv,.occ.anniv .dot{background:var(--ember);box-shadow:0 0 6px rgba(var(--ember-rgb),.8)}
+i.milestone,.occ.milestone .dot{background:var(--ink);box-shadow:0 0 5px rgba(247,231,216,.6)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.picked-day{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px;animation:rise .35s cubic-bezier(.2,.7,.2,1)}
+.pd-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.occs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.occ{display:flex;align-items:flex-start;gap:10px}
+.occ .dot{margin-top:9px;width:7px;height:7px}
+.occ .txt{flex:1;min-width:0}
+.occ strong{display:block;font-family:var(--display);font-size-adjust:none;font-weight:500;letter-spacing:.03em;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
+.occ small{display:block;color:var(--ink-soft);font-size:13.5px}
+.occ p{margin:2px 0 0;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere}
+.occ .edit{margin-top:2px}
+.upcoming .when{flex:none;width:68px;margin-top:2px;font-size:13px;color:var(--ember);text-align:right;font-style:italic}
+.upcoming .occ{padding:8px 10px;border-radius:10px;background:rgba(var(--rose-rgb),.07);border:1px solid var(--line)}
 /* watch list: each title is a little ticket, with a stub to tick once you have seen it */
 .watch{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .watch li{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:rgba(var(--rose-rgb),.08);
@@ -291,7 +339,7 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .watch .stamp{align-self:center;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);border:1px solid var(--rose);border-radius:4px;padding:1px 6px;transform:rotate(-4deg)}
 .watch .edit{align-self:center;margin:0 8px 0 4px}
 .watch .done{background:none}
-.watch .done strong{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--rose)}
+
 .filler{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;color:var(--ink-soft);font-style:italic}
 
 /* tabs */
@@ -362,7 +410,7 @@ form h2{font-size:21px}
   .tabs{gap:2px 10px;padding-bottom:10px}
   .tabs a{font-size:13px}
 }
-@media (prefers-reduced-motion:reduce){.shoot,.flare,.trace{display:none}.tw,.halo{animation:none}.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots{animation:none}
+@media (prefers-reduced-motion:reduce){.striking .strike,.unstriking .strike,.striking input{animation-duration:.01s}.spark{display:none}.shoot,.flare,.trace{display:none}.tw,.halo{animation:none}.glow,.star,.dayno,.enter .toc li,.book:not(.nohover) .toc a:hover .dots,.toc a.tap .dots{animation:none}
   *{transition-duration:.01s!important}
 }
 </style>
@@ -381,6 +429,7 @@ form h2{font-size:21px}
   <a href="#places" data-s="places">Travel</a>
   <a href="#wishes" data-s="wishes">Goals</a>
   <a href="#watch" data-s="watch">Watch list</a>
+  <a href="#calendar" data-s="calendar">Calendar</a>
   <button class="arrow" id="next" type="button" aria-label="Next page">&#8594;</button>
 </nav>
 
@@ -393,6 +442,12 @@ form h2{font-size:21px}
     <label class="f" data-f="since">The day it began<input id="f-since" type="date"></label>
     <label class="f" data-f="title"><span id="l-title">Title</span><input id="f-title" maxlength="90"></label>
     <label class="f" data-f="date">Date<input id="f-date" type="date"></label>
+    <label class="f" data-f="time">Time (optional)<input id="f-time" type="time"></label>
+    <fieldset class="f seg" data-f="repeat"><legend>Happens</legend>
+      <label><input type="radio" name="f-repeat" id="f-rep-once" value="once" checked><span>Once</span></label>
+      <label><input type="radio" name="f-repeat" id="f-rep-yearly" value="yearly"><span>Every year</span></label>
+      <small>Every year is for birthdays and other yearly days.</small>
+    </fieldset>
     <label class="f" data-f="text"><span id="l-text">What happened</span><textarea id="f-text" maxlength="1200"></textarea></label>
     <label class="f" data-f="from"><span id="l-from">From</span><input id="f-from" maxlength="30" list="who"></label>
     <datalist id="who"></datalist>
@@ -450,6 +505,7 @@ const SECTIONS = {
   places: {title:"Travel",   kind:'place',     add:'Add a place'},
   wishes: {title:'Goals',        kind:'wish',      add:'Add a wish',      per:8},
   watch:  {title:'Watch list',          kind:'watch',     add:'Add a film or series', per:6},
+  calendar: {title:'Calendar',          kind:'event',     add:'Add a plan'},
 };
 
 /* ---------- small helpers ---------- */
@@ -741,7 +797,7 @@ function fitCover(){
     while (size > 18 && (t.scrollWidth > t.clientWidth + 1 || t.offsetHeight > maxH)){ size -= 2; t.style.fontSize = size + 'px'; }
     t.style.overflowWrap = 'break-word';
   });
-  fitShots();
+  fitShots(); fitUpcoming();
 }
 function drawDedication(el){
   const n = names(), d = dayNo(today());
@@ -752,7 +808,7 @@ function drawDedication(el){
       : h('p', {class:'empty', text: loaded ? 'Add your names and the day it all began, and this page will count your days together.' : ''})));
 }
 const BLURB = {story:'memorable moments', photos:'our shared album', notes:'little letters, kept for good',
-  places:'every place, a star on your heart', wishes:'everything yet to be done together', watch:'films and series for our evenings'};
+  places:'every place, a star on your heart', wishes:'everything yet to be done together', watch:'films and series for our evenings', calendar:'plans, birthdays and anniversaries'};
 function drawContents(el){
   el.append(h('header', {class:'sec'}, h('h2', {text:'Contents'})),
     h('ul', {class:'toc'}, Object.keys(SECTIONS).map((k, i) => {
@@ -844,16 +900,40 @@ function drawPlaces(el){
   el.append(h('ol', {class:'places'}, list.map((p, i) => h('li', {onmouseenter: () => hot(i, true), onmouseleave: () => hot(i, false)}, h('span', {class:'num', text: i+1}),
     h('div', {class:'txt'}, h('strong', {text: str(p.title)}), h('small', {text: [fmtDay(p.date), str(p.text)].filter(Boolean).join(' · ')})), editBtn(p)))));
 }
+/* tick or untick a Goals / Watch list entry: play the crossing out first, then save */
+function sparks(from){
+  const li = from.closest('li'), r = from.getBoundingClientRect(), lr = li.getBoundingClientRect();
+  const x = r.left - lr.left + r.width/2, y = r.top - lr.top + r.height/2;
+  for (let i = 0; i < 9; i++){
+    const s_ = h('i', {class: 'spark' + (i % 3 === 0 ? ' r' : '')});
+    s_.style.left = x + 'px'; s_.style.top = y + 'px';
+    li.append(s_);
+    const a = i/9*Math.PI*2 + Math.random()*.4, d = 18 + Math.random()*16;
+    const an = s_.animate([{transform:'translate(0,0) scale(.4)', opacity:1}, {transform:`translate(${(Math.cos(a)*d).toFixed(1)}px,${(Math.sin(a)*d).toFixed(1)}px) scale(1)`, opacity:1, offset:.45}, {transform:`translate(${(Math.cos(a)*d*1.4).toFixed(1)}px,${(Math.sin(a)*d*1.4 + 6).toFixed(1)}px) scale(.2)`, opacity:0}], {duration: 650 + Math.random()*200, easing:'cubic-bezier(.2,.7,.3,1)'});
+    an.onfinish = () => s_.remove();
+  }
+}
+function tickable(entry, box){
+  box.addEventListener('change', () => {
+    const li = box.closest('li'), on = box.checked, {id, ...data} = entry;
+    box.disabled = true;
+    li.classList.remove('striking', 'unstriking');
+    void li.offsetWidth;
+    li.classList.add(on ? 'striking' : 'unstriking');
+    if (on && !matchMedia('(prefers-reduced-motion: reduce)').matches) sparks(box);
+    setTimeout(async () => {
+      try { await store.save(id, {...data, done: on}); }
+      catch (e){ box.checked = !on; li.classList.remove('striking', 'unstriking'); box.disabled = false; toast(writeFailed(e)); }
+    }, on ? 650 : 480);
+  });
+}
 function drawWishes(el, list, first){
   el.append(first ? secHead('wishes') : running('wishes'));
   if (!list.length){ if (loaded) el.append(h('p', {class:'empty', text:'Things you want to do together someday. Tick each one off when it happens.'})); return; }
   el.append(h('ul', {class:'wishes'}, list.map(w => {
     const box = h('input', {type:'checkbox', id:'w-'+w.id, checked: !!w.done, disabled: !canWrite});
-    box.addEventListener('change', async () => {
-      const {id, ...data} = w;
-      try { await store.save(id, {...data, done: box.checked}); } catch (e){ box.checked = !box.checked; toast(writeFailed(e)); }
-    });
-    return h('li', {class: w.done ? 'done' : ''}, h('label', {for:'w-'+w.id}, box, h('span', {text: str(w.title)})), editBtn(w));
+    tickable(w, box);
+    return h('li', {class: w.done ? 'done' : ''}, h('label', {for:'w-'+w.id}, box, h('span', {}, h('span', {class:'strike', text: str(w.title)}))), editBtn(w));
   })));
 }
 function drawWatch(el, list, first){
@@ -865,15 +945,115 @@ function drawWatch(el, list, first){
   }
   el.append(h('ul', {class:'watch'}, list.map(w => {
     const box = h('input', {type:'checkbox', id:'v-'+w.id, checked: !!w.done, disabled: !canWrite, 'aria-label': 'Watched: ' + str(w.title)});
-    box.addEventListener('change', async () => {
-      const {id, ...data} = w;
-      try { await store.save(id, {...data, done: box.checked}); } catch (e){ box.checked = !box.checked; toast(writeFailed(e)); }
-    });
+    tickable(w, box);
     const meta = [str(w.text), w.from ? 'picked by ' + str(w.from) : ''].filter(Boolean).join(' · ');
     return h('li', {class: w.done ? 'done' : ''}, h('label', {for:'v-'+w.id}, box),
-      h('div', {class:'txt'}, h('strong', {text: str(w.title)}), meta && h('small', {text: meta})),
+      h('div', {class:'txt'}, h('strong', {}, h('span', {class:'strike', text: str(w.title)})), meta && h('small', {text: meta})),
       w.done && h('span', {class:'stamp', text:'watched'}), editBtn(w));
   })));
+}
+/* ---------- calendar ---------- */
+const ymd = x => x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+const addDays = (x, n) => new Date(x.getFullYear(), x.getMonth(), x.getDate() + n);
+function addMonths(x, n){ const last = new Date(x.getFullYear(), x.getMonth() + n + 1, 0).getDate(); return new Date(x.getFullYear(), x.getMonth() + n, Math.min(x.getDate(), last)); }
+let calMonth = null, calDay = null;   // the month shown and the day picked, kept while the book is open
+/* everything that happens between two dates: your plans, yearly days, milestones and anniversaries */
+function occurrences(from, to){
+  const out = [], F = ymd(from), T = ymd(to), inRange = d => d >= F && d <= T;
+  for (const i of items){
+    if (i.kind === 'event'){
+      const d0 = parseDay(i.date); if (!d0) continue;
+      if (i.repeat === 'yearly'){
+        for (let y = from.getFullYear(); y <= to.getFullYear(); y++){
+          const d = ymd(new Date(y, d0.getMonth(), Math.min(d0.getDate(), new Date(y, d0.getMonth() + 1, 0).getDate())));
+          if (inRange(d) && d >= i.date) out.push({date: d, title: str(i.title), time: str(i.time), type: 'yearly', item: i});
+        }
+      } else if (inRange(i.date)) out.push({date: i.date, title: str(i.title), time: str(i.time), type: 'plan', item: i});
+    } else if (i.kind === 'milestone' && i.date && inRange(i.date)) out.push({date: i.date, title: str(i.title), time: '', type: 'milestone', item: i});
+  }
+  const since = parseDay(settings.since);
+  if (since){
+    for (let k = 1; k <= 12*60; k++){
+      const d = addMonths(since, k), s_ = ymd(d);
+      if (s_ > T) break;
+      if (s_ >= F) out.push({date: s_, title: k % 12 === 0 ? (k/12 === 1 ? '1 year together' : k/12 + ' years together') : (k === 1 ? '1 month together' : k + ' months together'), time: '', type: 'anniv'});
+    }
+    const first = Math.max(1, Math.ceil((from - since)/864e5/100))*100;
+    for (let n = first; ; n += 100){
+      const s_ = ymd(addDays(since, n - 1));
+      if (s_ > T) break;
+      if (s_ >= F) out.push({date: s_, title: 'Day ' + n.toLocaleString(), time: '', type: 'anniv'});
+    }
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date) || (a.time || '99').localeCompare(b.time || '99'));
+}
+const TYPE_NAME = {plan:'plan', yearly:'every year', milestone:'milestone', anniv:'anniversary'};
+function occRow(o, showDate){
+  const when = [showDate ? fmtDay(o.date) : '', o.time].filter(Boolean).join(' · ');
+  return h('li', {class: 'occ ' + o.type},
+    h('span', {class:'dot', 'aria-hidden':'true'}),
+    h('div', {class:'txt'}, h('strong', {text: o.title}), h('small', {text: [when, TYPE_NAME[o.type]].filter(Boolean).join(' · ')}),
+      o.item && o.item.kind === 'event' && o.item.text ? h('p', {text: str(o.item.text)}) : null),
+    o.item && o.item.kind === 'event' ? editBtn(o.item) : null);
+}
+function drawMonth(el){
+  const box = h('div', {class:'cal'});
+  el.append(secHead('calendar'), box);
+  const now = parseDay(today());
+  if (!calMonth) calMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const paint = () => {
+    const m0 = calMonth, m1 = new Date(m0.getFullYear(), m0.getMonth() + 1, 0);
+    const lead = (m0.getDay() + 6) % 7, start = addDays(m0, -lead), cells = Math.ceil((lead + m1.getDate())/7)*7;
+    const occ = occurrences(start, addDays(start, cells - 1)), byDay = {};
+    occ.forEach(o => (byDay[o.date] = byDay[o.date] || []).push(o));
+    let mname = ''; try { mname = m0.toLocaleDateString('sk-SK', {month:'long'}); } catch {}
+    const shift = n => { calMonth = new Date(m0.getFullYear(), m0.getMonth() + n, 1); calDay = null; paint(); };
+    const grid = h('div', {class:'grid', role:'grid'});
+    ['Po','Ut','St','Št','Pi','So','Ne'].forEach(d => grid.append(h('span', {class:'wd', text: d})));
+    for (let i = 0; i < cells; i++){
+      const d = addDays(start, i), key = ymd(d), here = byDay[key] || [];
+      const types = [...new Set(here.map(o => o.type))].slice(0, 3);
+      const cell = h('button', {type:'button', class: 'day' + (d.getMonth() !== m0.getMonth() ? ' out' : '') + (key === today() ? ' today' : '') + (key === calDay ? ' picked' : '') + (here.length ? ' has' : ''),
+        'aria-label': fmtDay(key) + (here.length ? ', ' + here.map(o => o.title).join(', ') : ''), 'aria-pressed': String(key === calDay)},
+        h('span', {class:'n', text: String(d.getDate())}), h('span', {class:'dots'}, types.map(tp => h('i', {class: tp}))));
+      cell.addEventListener('click', () => { calDay = calDay === key ? null : key; if (d.getMonth() !== m0.getMonth()) calMonth = new Date(d.getFullYear(), d.getMonth(), 1); paint(); });
+      grid.append(cell);
+    }
+    const dayList = calDay ? (byDay[calDay] || []) : [];
+    box.replaceChildren(...[
+      h('div', {class:'mhead'},
+        h('button', {class:'arrow small', type:'button', 'aria-label':'Previous month', onclick: () => shift(-1)}, '←'),
+        h('strong', {text: mname + ' ' + m0.getFullYear()}),
+        h('button', {class:'arrow small', type:'button', 'aria-label':'Next month', onclick: () => shift(1)}, '→')),
+      grid,
+      h('div', {class:'legend'}, ['plan','yearly','anniv','milestone'].map(tp => h('span', {}, h('i', {class: tp}), {plan:'plans', yearly:'birthdays, yearly', anniv:'anniversaries', milestone:'milestones'}[tp]))),
+      calDay ? h('div', {class:'picked-day'},
+        h('div', {class:'pd-head'}, h('span', {class:'running', text: fmtDay(calDay)}),
+          canWrite && h('button', {class:'btn small', type:'button', text:'Add a plan this day', onclick: () => openForm('event', null, {date: calDay})})),
+        dayList.length ? h('ul', {class:'occs'}, dayList.map(o => occRow(o, false))) : h('p', {class:'empty', text:'Nothing on this day yet.'})) : null].filter(Boolean));
+  };
+  paint();
+}
+function drawUpcoming(el){
+  el.append(h('div', {class:'running', text:'Coming up'}));
+  const now = parseDay(today()), list = occurrences(now, addDays(now, 400));
+  if (!list.length){ if (loaded) el.append(h('p', {class:'empty', text:'Add your plans, and birthdays as yearly days. Anniversaries appear here by themselves.'})); return; }
+  const ul = h('ul', {class:'occs upcoming'});
+  el.append(ul);
+  for (const o of list){
+    const days = Math.round((parseDay(o.date) - now)/864e5);
+    const row = occRow(o, true);
+    row.prepend(h('span', {class:'when', text: days === 0 ? 'today' : days === 1 ? 'tomorrow' : days < 7 ? 'in ' + days + ' days' : days < 60 ? 'in ' + Math.round(days/7) + ' wk' : 'in ' + Math.round(days/30.4) + ' mo'}));
+    ul.append(row);
+    if (ul.children.length >= 14) break;
+  }
+}
+/* once the page is on screen, drop upcoming rows from the end until the page fits */
+function fitUpcoming(){
+  spread.querySelectorAll('.upcoming').forEach(ul => {
+    const pg = ul.closest('.page');
+    while (ul.children.length > 1 && pg.scrollHeight > pg.clientHeight) ul.lastElementChild.remove();
+  });
 }
 function drawFiller(el, key){
   el.append(h('div', {class:'filler'}, h('span', {text:'This page is waiting.'}),
@@ -922,6 +1102,7 @@ function buildPages(){
   const watch = byKind('watch');
   watch.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));   // still to watch first, in the order added
   paged('watch', drawWatch, watch);
+  sec('calendar', [{draw: drawMonth, kindAll:'event'}, {draw: drawUpcoming}]);
   return P;
 }
 let dirty = false;
@@ -1170,6 +1351,12 @@ document.addEventListener('click', e => {
   const name = a.getAttribute('href').slice(1);
   if (name !== 'cover' && name !== 'contents' && !SECTIONS[name]) return;
   e.preventDefault();
+  /* on a touch screen, a Contents row plays its animation for a moment before the page turns */
+  if (touchOnly.matches && a.closest('.toc') && !busy){
+    a.classList.add('tap');
+    setTimeout(() => goSection(name), 420);
+    return;
+  }
   goSection(name);
 });
 
@@ -1183,8 +1370,9 @@ const FIELDS = {
   place:     {title:'A place',        show:['title','date','text'],         lt:'Where', lx:'A line about it'},
   wish:      {title:'A wish',         show:['title'],                       lt:'Something to do together someday'},
   watch:     {title:'Something to watch', show:['title','text','from'],     lt:'Film or series', lx:'A note, like where to watch it (optional)', lf:'Picked by (optional)'},
+  event:     {title:'A plan',         show:['title','date','time','repeat','text'], lt:'What', lx:'A note (optional)'},
 };
-function openForm(kind, item){
+function openForm(kind, item, preset){
   formKind = kind; editing = item || null; delArmed = false;
   const F = FIELDS[kind];
   form.reset(); $('err').textContent = '';
@@ -1202,6 +1390,9 @@ function openForm(kind, item){
     $('f-from').value = item ? str(item.from) : ''; $('f-date').value = item ? str(item.date) : today();
     const lay = item && (item.size === 'full' || item.size === 'half') ? item.size : 'auto';
     $('f-lay-' + lay).checked = true;
+    $('f-time').value = item ? str(item.time) : '';
+    $('f-rep-' + (item && item.repeat === 'yearly' ? 'yearly' : 'once')).checked = true;
+    if (!item && preset && preset.date) $('f-date').value = preset.date;
   }
   if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
 }
@@ -1219,6 +1410,7 @@ form.addEventListener('submit', async ev => {
   if (formKind !== 'settings'){
     if (F.show.includes('title') && formKind !== 'photo' && !v('f-title')) msg = 'Give it a few words first.';
     if (formKind === 'note' && !v('f-text')) msg = 'Write the note first.';
+    if (formKind === 'event' && !parseDay(v('f-date'))) msg = 'Choose a date first.';
     if (formKind === 'photo' && !file && !(editing && editing.photo)) msg = 'Choose a photo first.';
   }
   if (msg){ $('err').textContent = msg; return; }
@@ -1234,6 +1426,8 @@ form.addEventListener('submit', async ev => {
       if (F.show.includes('text')) data.text = v('f-text');
       if (F.show.includes('date')) data.date = v('f-date');
       if (F.show.includes('from')) data.from = v('f-from');
+      if (F.show.includes('time')) data.time = v('f-time');
+      if (F.show.includes('repeat')){ const c = form.querySelector('input[name="f-repeat"]:checked'); data.repeat = c && c.value === 'yearly' ? 'yearly' : 'once'; }
       if (formKind === 'wish' || formKind === 'watch') data.done = !!(editing && editing.done);
       if (F.show.includes('layout')){ const c = form.querySelector('input[name="f-layout"]:checked'); data.size = c ? c.value : 'auto'; }
       if (F.show.includes('photo')){
