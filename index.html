@@ -1384,7 +1384,8 @@ function openForm(kind, item, preset){
   form.querySelectorAll('.f').forEach(l => l.hidden = !F.show.includes(l.dataset.f));
   $('l-title').textContent = F.lt || 'Title'; $('l-text').textContent = F.lx || 'Text';
   $('l-from').textContent = F.lf || 'From';
-  $('l-photo').textContent = (F.lp || 'Photo') + (item && item.photo ? ' (leave empty to keep the current one)' : '');
+  $('f-photo').multiple = !item;
+  $('l-photo').textContent = item && item.photo ? (F.lp || 'Photo') + ' (leave empty to keep the current one)' : 'Photos (you can pick several at once)';
   $('del').hidden = !item; $('del').textContent = 'Remove';
   $('who').replaceChildren(...[settings.a, settings.b].map(str).filter(Boolean).map(n => h('option', {value: n})));
   if (kind === 'settings'){
@@ -1409,7 +1410,7 @@ $('del').addEventListener('click', async () => {
 });
 form.addEventListener('submit', async ev => {
   ev.preventDefault();
-  const F = FIELDS[formKind], v = id => $(id).value.trim(), file = $('f-photo').files[0];
+  const F = FIELDS[formKind], v = id => $(id).value.trim(), files = [...$('f-photo').files].sort((x,y) => x.name.localeCompare(y.name, undefined, {numeric:true})), file = files[0];
   let msg = '';
   if (formKind !== 'settings'){
     if (F.show.includes('title') && formKind !== 'photo' && !v('f-title')) msg = 'Give it a few words first.';
@@ -1418,7 +1419,7 @@ form.addEventListener('submit', async ev => {
     if (formKind === 'photo' && !file && !(editing && editing.photo)) msg = 'Choose a photo first.';
   }
   if (msg){ $('err').textContent = msg; return; }
-  $('save').disabled = true; $('save').textContent = file ? 'Saving photo…' : 'Saving…'; $('err').textContent = '';
+  $('save').disabled = true; $('save').textContent = files.length > 1 ? 'Saving photo 1 of ' + files.length + '…' : file ? 'Saving photo…' : 'Saving…'; $('err').textContent = '';
   try {
     if (formKind === 'settings'){
       await store.saveSettings({title: v('f-btitle'), a: v('f-a'), b: v('f-b'), since: v('f-since')});
@@ -1442,6 +1443,15 @@ form.addEventListener('submit', async ev => {
       }
       focusId = id;
       await store.save(id, data);
+      if (!editing && formKind === 'photo' && files.length > 1){
+        // the rest of a multi-photo pick: same date, layout and caption, kept in order
+        for (let i = 1; i < files.length; i++){
+          $('save').textContent = 'Saving photo ' + (i + 1) + ' of ' + files.length + '…';
+          const nid = store.newId(), more = {...data, created: data.created + i};
+          more.photo = await storePhoto(nid, files[i]);
+          await store.save(nid, more);
+        }
+      }
 
     }
     closeForm();
