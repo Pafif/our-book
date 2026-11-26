@@ -208,15 +208,19 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* photos */
-.shots{flex:1;min-height:0;display:flex;flex-direction:column;gap:18px}
+/* Photos are never cropped: each frame takes its photo's own shape, sized by fitShots() to the space it has.
+   Tall photos get a page each; wide ones share a page two by two. */
+.shots{flex:1;min-height:0;display:flex;flex-direction:column;gap:16px}
+.slot{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center}
 .paper{background:var(--paper);color:var(--paper-ink);box-shadow:0 10px 24px rgba(0,0,0,.45),0 0 30px rgba(var(--rose-rgb),.12);
   transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s}
-.shot{flex:1;min-height:150px;margin:0;padding:9px 9px 6px;display:flex;flex-direction:column;gap:4px;align-self:center;width:min(100%,400px)}
-.shot:nth-child(odd){transform:rotate(-1.6deg)}.shot:nth-child(even){transform:rotate(1.3deg)}
+.shot{margin:0;padding:9px 9px 6px;display:flex;flex-direction:column;gap:4px}
+.slot:nth-child(odd) .shot{transform:rotate(-1.6deg)}.slot:nth-child(even) .shot{transform:rotate(1.3deg)}
 .shots .shot:hover,.notes .note:hover{transform:rotate(0) translateY(-6px) scale(1.035);box-shadow:0 22px 40px rgba(0,0,0,.6),0 0 46px rgba(var(--rose-rgb),.35);z-index:2}
-.ph{flex:1;min-height:0;background:#d9c3b6;display:flex;align-items:center;justify-content:center;color:#7d5f5c;font-style:italic;font-size:14px;overflow:hidden}
-.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
-.shot:hover .ph img{transform:scale(1.06)}
+.ph{flex:none;width:240px;height:180px;background:#d9c3b6;display:flex;align-items:center;justify-content:center;color:#7d5f5c;font-style:italic;font-size:14px;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.shot:hover .ph img{transform:scale(1.04)}
+.thumb img{cursor:zoom-in}
 .ph.missing img{display:none}.ph.missing::after{content:"This photo can't be shown here"}
 .shot figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .shot .cap{font-family:var(--hand);font-size-adjust:none;font-size:23px;line-height:1.1;overflow-wrap:anywhere}
@@ -293,10 +297,29 @@ form h2{font-size:26px}
 .f input,.f textarea{background:var(--night);border:1px solid var(--line);border-radius:6px;padding:9px 10px;color:var(--ink);font-size:16px;width:100%}
 .f textarea{min-height:96px;resize:vertical}
 .f input[type=file]{padding:7px;font-size:14px}
+.seg{border:0;margin:0;padding:0;display:flex;flex-direction:row;flex-wrap:wrap;gap:8px}
+.seg legend{padding:0;margin-bottom:6px}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg label span{display:block;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--ink);font-size:15px;transition:background .2s,border-color .2s,color .2s}
+.seg input:checked + span{background:rgba(var(--rose-rgb),.3);border-color:var(--rose);color:#fff4ee}
+.seg input:focus-visible + span{outline:2px solid var(--ember);outline-offset:2px}
+.seg small{flex-basis:100%;font-size:13px;color:var(--ink-soft)}
 .row{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;align-items:center}
 .row div{display:flex;gap:10px}
 #err{color:#ff9aa8;font-size:14px;margin:0}
 #err:empty{display:none}
+/* full-screen photo viewer */
+#viewer{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,2,4,.93);cursor:zoom-out;animation:vfade .25s ease-out}
+#viewer[hidden]{display:none}
+@keyframes vfade{from{opacity:0}}
+#viewer figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:100%;animation:vrise .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes vrise{from{transform:scale(.94);opacity:0}}
+#v-img{display:block;max-width:min(94vw,1600px);max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);object-fit:contain;border:8px solid var(--paper);border-bottom-width:8px;box-shadow:0 30px 80px rgba(0,0,0,.8),0 0 60px rgba(var(--rose-rgb),.25);background:var(--paper)}
+#viewer figcaption{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;justify-content:center;text-align:center;max-width:min(94vw,900px)}
+#v-cap{font-family:var(--hand);font-size-adjust:none;font-size:30px;line-height:1.15;color:var(--ink);overflow-wrap:anywhere}
+#v-meta{font-size:15px;color:var(--ink-soft)}
+#v-close{position:absolute;top:14px;right:14px;font-size:22px}
 #toast{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:9;background:var(--paper);color:var(--paper-ink);padding:9px 16px;border-radius:8px;max-width:calc(100vw - 32px);font-size:14px}
 #toast:empty{display:none}
 
@@ -361,6 +384,12 @@ form h2{font-size:21px}
     <label class="f" data-f="from"><span id="l-from">From</span><input id="f-from" maxlength="30" list="who"></label>
     <datalist id="who"></datalist>
     <label class="f" data-f="photo"><span id="l-photo">Photo</span><input id="f-photo" type="file" accept="image/*"></label>
+    <fieldset class="f seg" data-f="layout"><legend>On the page</legend>
+      <label><input type="radio" name="f-layout" id="f-lay-auto" value="auto" checked><span>Automatic</span></label>
+      <label><input type="radio" name="f-layout" id="f-lay-full" value="full"><span>Full page</span></label>
+      <label><input type="radio" name="f-layout" id="f-lay-half" value="half"><span>Half page</span></label>
+      <small id="lay-hint">Automatic gives tall photos a page of their own and puts wide ones two to a page.</small>
+    </fieldset>
     <p id="err" role="alert"></p>
     <div class="row">
       <button class="btn quiet" type="button" id="del">Remove</button>
@@ -369,6 +398,10 @@ form h2{font-size:21px}
   </form>
 </dialog>
 <div id="toast" role="alert"></div>
+<div id="viewer" hidden role="dialog" aria-modal="true" aria-label="Photo">
+  <figure><img id="v-img" alt=""><figcaption><span id="v-cap"></span><span id="v-meta"></span></figcaption></figure>
+  <button class="arrow" type="button" id="v-close" aria-label="Close photo">&#215;</button>
+</div>
 <div id="gate" hidden>
   <form id="gate-form" class="gate-card" novalidate>
     <span class="kick">a book for two</span>
@@ -447,16 +480,76 @@ function photoUrl(path){
   }
   return urlCache.get(path);
 }
+/* ---------- photo shapes ---------- */
+const DIMS_KEY = 'our-book-dims-v1';
+const dims = new Map((() => { try { return Object.entries(JSON.parse(localStorage.getItem(DIMS_KEY) || '{}')); } catch { return []; } })());
+const measured = new Set();
+function photoDims(p){
+  if (!p) return null;
+  if (p.w > 0 && p.h > 0) return [p.w, p.h];
+  return dims.get(p.path) || null;
+}
+/* a photo fills a page when chosen so, or, on Automatic, when it is clearly taller than wide */
+function isFull(item){
+  if (item.size === 'full') return true;
+  if (item.size === 'half') return false;
+  const d = photoDims(item.photo);
+  return !!d && d[1] > d[0]*1.1;
+}
+let relayoutT = 0;
+function relayout(){ clearTimeout(relayoutT); relayoutT = setTimeout(() => { if (busy) dirty = true; else render(); }, 150); }
+/* Photos saved before this version have no size stored: measure each once, remember it on this device,
+   and store it with the photo so the other phone never has to measure it again. */
+function learnDims(id, w, hgt){
+  const item = items.find(i => i.id === id);
+  if (!item || !item.photo || !w || !hgt || photoDims(item.photo)) return;
+  dims.set(item.photo.path, [w, hgt]);
+  try { localStorage.setItem(DIMS_KEY, JSON.stringify(Object.fromEntries(dims))); } catch {}
+  if (canWrite && sb && !measured.has(id)){
+    measured.add(id);
+    const {id: _, ...data} = item;
+    sb.from('memories').upsert({id, data: {...data, photo: {...item.photo, w, h: hgt}}, updated_at: new Date().toISOString()}).then(() => {}, () => {});
+  }
+  relayout();
+}
+function measureMissing(){
+  if (!sb) return;
+  items.filter(i => i.photo && i.photo.path && !photoDims(i.photo)).forEach(i => {
+    photoUrl(i.photo.path).then(u => { const im = new Image(); im.onload = () => learnDims(i.id, im.naturalWidth, im.naturalHeight); im.src = u; }, () => {});
+  });
+}
 function photoBox(item, cls){
-  const box = h('div', {class: cls});
+  const box = h('div', {class: cls, 'data-id': item.id});
   const p = item.photo;
   if (!p){ box.textContent = 'no photo'; return box; }
+  const d = photoDims(p);
+  box.dataset.ratio = d ? String(d[0]/d[1]) : String(4/3);
   const img = h('img', {alt: str(item.title) || 'Photo', loading:'lazy'});
   img.addEventListener('error', () => box.classList.add('missing'));
+  img.addEventListener('load', () => learnDims(item.id, img.naturalWidth, img.naturalHeight));
   if (sb && typeof p.path === 'string' && p.path) photoUrl(p.path).then(u => { img.src = u; }, () => box.classList.add('missing'));
   else box.classList.add('missing');
   box.append(img);
   return box;
+}
+/* size every photo frame on the visible pages to its photo's shape and the room its slot has */
+function fitShots(){
+  spread.querySelectorAll('.slot').forEach(slot => {
+    const fig = slot.firstElementChild, ph = fig && fig.querySelector('.ph'), cap = fig && fig.querySelector('figcaption');
+    if (!ph || !cap) return;
+    const W = slot.clientWidth, H = slot.clientHeight;
+    if (!W || !H) return;
+    const r = +ph.dataset.ratio || 4/3;
+    let capH = 30;
+    for (let k = 0; k < 3; k++){
+      const pw = Math.max(60, Math.floor(Math.min(W*.95 - 18, (H*.97 - 17 - capH)*r, 720)));
+      const ph_ = Math.max(45, Math.floor(pw/r));
+      ph.style.width = pw + 'px'; ph.style.height = ph_ + 'px'; cap.style.width = pw + 'px';
+      const c = cap.offsetHeight;
+      if (Math.abs(c - capH) < 1) break;
+      capH = c;
+    }
+  });
 }
 async function shrink(file, max, asData){
   let bmp;
@@ -466,6 +559,7 @@ async function shrink(file, max, asData){
   const c = document.createElement('canvas');
   c.width = Math.max(1, Math.round(bmp.width*sc)); c.height = Math.max(1, Math.round(bmp.height*sc));
   c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  if (asData === 'dims') return new Promise((res, rej) => c.toBlob(b => b ? res({blob: b, w: c.width, h: c.height}) : rej(new Error('The photo could not be prepared.')), 'image/jpeg', .86));
   if (asData){
     let q = .82, u;
     do { u = c.toDataURL('image/jpeg', q); q -= .14; } while (u.length > 230000 && q > .3);
@@ -475,12 +569,12 @@ async function shrink(file, max, asData){
   return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('The photo could not be prepared.')), 'image/jpeg', .86));
 }
 async function storePhoto(id, file){
-  const blob = await shrink(file, 1800, false);
+  const {blob, w, h} = await shrink(file, 1800, 'dims');
   const path = id + '-' + Date.now().toString(36) + '.jpg';
   const {error} = await sb.storage.from('photos').upload(path, blob, {contentType:'image/jpeg', upsert:false});
   if (error) throw error;
   urlCache.set(path, Promise.resolve(URL.createObjectURL(blob)));
-  return {path};
+  return {path, w, h};
 }
 function dropPhoto(p){ if (sb && p && p.path) sb.storage.from('photos').remove([p.path]).catch(() => {}); }
 
@@ -563,6 +657,7 @@ function fitCover(){
     while (size > 18 && (t.scrollWidth > t.clientWidth + 1 || t.offsetHeight > maxH)){ size -= 2; t.style.fontSize = size + 'px'; }
     t.style.overflowWrap = 'break-word';
   });
+  fitShots();
 }
 function drawDedication(el){
   const n = names(), d = dayNo(today());
@@ -606,13 +701,25 @@ function drawStory(el, list, first){
 }
 function drawPhotos(el, list, first){
   el.append(first ? secHead('photos') : running('photos'));
+  const frame = (box, cap, meta) => h('div', {class:'slot'}, h('figure', {class:'shot paper'}, box, h('figcaption', {}, cap, meta)));
   if (!list.length){
-    if (loaded) el.append(h('div', {class:'shots ghost'}, h('figure', {class:'shot paper'}, h('div', {class:'ph', text:'your first photo'}),
-      h('figcaption', {}, h('span', {class:'cap', text:'a caption in your own words'}), h('span', {class:'meta', text:'example'})))));
+    if (loaded) el.append(h('div', {class:'shots ghost'}, frame(h('div', {class:'ph', 'data-ratio': String(4/3), text:'your first photo'}),
+      h('span', {class:'cap', text:'a caption in your own words'}), h('span', {class:'meta', text:'example'}))));
     return;
   }
-  el.append(h('div', {class:'shots'}, list.map(p => h('figure', {class:'shot paper'}, photoBox(p, 'ph'),
-    h('figcaption', {}, h('span', {class:'cap', text: str(p.title)}), h('span', {class:'meta'}, fmtDay(p.date), ' ', editBtn(p)))))));
+  el.append(h('div', {class:'shots'}, list.map(p => frame(photoBox(p, 'ph'),
+    h('span', {class:'cap', text: str(p.title)}), h('span', {class:'meta'}, fmtDay(p.date), ' ', editBtn(p))))));
+}
+/* tall photos (or ones set to Full page) get a page each; the rest go two to a page, in date order */
+function photoPages(list){
+  const out = []; let half = null;
+  for (const p of list){
+    if (isFull(p)){ if (half){ out.push(half); half = null; } out.push([p]); }
+    else if (half){ half.push(p); out.push(half); half = null; }
+    else half = [p];
+  }
+  if (half) out.push(half);
+  return out.length ? out : [[]];
 }
 function drawNotes(el, list, first){
   el.append(first ? secHead('notes') : running('notes'));
@@ -701,7 +808,9 @@ function buildPages(){
   P.push({section:'cover', cover:true, draw: drawCover});
   sec('contents', [{draw: drawDedication}, {draw: drawContents}]);
   const paged = (key, fn) => sec(key, chunk(byKind(SECTIONS[key].kind), SECTIONS[key].per).map((c, i) => ({ids: c.map(x => x.id), draw: el => fn(el, c, i === 0)})));
-  paged('story', drawStory); paged('photos', drawPhotos); paged('notes', drawNotes);
+  paged('story', drawStory);
+  sec('photos', photoPages(byKind('photo')).map((c, i) => ({ids: c.map(x => x.id), draw: el => drawPhotos(el, c, i === 0)})));
+  paged('notes', drawNotes);
   sec('places', [{draw: drawSky, kindAll:'place'}, {draw: drawPlaces}]);
   paged('wishes', drawWishes);
   const watch = byKind('watch');
@@ -941,7 +1050,7 @@ let editing = null, formKind = null, delArmed = false;
 const FIELDS = {
   settings:  {title:'Names and date', show:['btitle','a','b','since']},
   milestone: {title:'A milestone',    show:['title','date','text','photo'], lt:'What was it', lx:'What happened', lp:'Photo, if you have one'},
-  photo:     {title:'A photo',        show:['photo','title','date'],        lt:'Caption', lp:'Photo'},
+  photo:     {title:'A photo',        show:['photo','layout','title','date'], lt:'Caption', lp:'Photo'},
   note:      {title:'A note',         show:['text','from','date'],          lx:'Your note'},
   place:     {title:'A place',        show:['title','date','text'],         lt:'Where', lx:'A line about it'},
   wish:      {title:'A wish',         show:['title'],                       lt:'Something to do together someday'},
@@ -963,6 +1072,8 @@ function openForm(kind, item){
   } else {
     $('f-title').value = item ? str(item.title) : ''; $('f-text').value = item ? str(item.text) : '';
     $('f-from').value = item ? str(item.from) : ''; $('f-date').value = item ? str(item.date) : today();
+    const lay = item && (item.size === 'full' || item.size === 'half') ? item.size : 'auto';
+    $('f-lay-' + lay).checked = true;
   }
   if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
 }
@@ -996,6 +1107,7 @@ form.addEventListener('submit', async ev => {
       if (F.show.includes('date')) data.date = v('f-date');
       if (F.show.includes('from')) data.from = v('f-from');
       if (formKind === 'wish' || formKind === 'watch') data.done = !!(editing && editing.done);
+      if (F.show.includes('layout')){ const c = form.querySelector('input[name="f-layout"]:checked'); data.size = c ? c.value : 'auto'; }
       if (F.show.includes('photo')){
         if (file){
           data.photo = await storePhoto(id, file);
@@ -1011,10 +1123,36 @@ form.addEventListener('submit', async ev => {
   finally { $('save').disabled = false; $('save').textContent = 'Save'; }
 });
 
+/* ---------- full-screen photo viewer ---------- */
+const viewer = $('viewer');
+let viewerFrom = null;
+function openViewer(item, src){
+  if (!src) return;
+  viewerFrom = document.activeElement;
+  $('v-img').src = src; $('v-img').alt = str(item.title) || 'Photo';
+  $('v-cap').textContent = str(item.title);
+  $('v-meta').textContent = fmtDay(item.date);
+  viewer.hidden = false;
+  $('v-close').focus();
+}
+function closeViewer(){
+  if (viewer.hidden) return;
+  viewer.hidden = true; $('v-img').removeAttribute('src');
+  if (viewerFrom && viewerFrom.focus) try { viewerFrom.focus(); } catch {}
+}
+viewer.addEventListener('click', closeViewer);
+spread.addEventListener('click', e => {
+  const img = e.target.closest && e.target.closest('.ph img, .thumb img');
+  if (!img || busy || img.closest('.turn, .leaf') || !img.currentSrc) return;
+  const box = img.parentElement, item = items.find(i => i.id === box.dataset.id);
+  if (item) openViewer(item, img.currentSrc);
+});
+
 /* ---------- navigation ---------- */
 $('prev').addEventListener('click', () => go(pos - step()));
 $('next').addEventListener('click', () => go(pos + step()));
 document.addEventListener('keydown', e => {
+  if (!viewer.hidden){ if (e.key === 'Escape'){ e.preventDefault(); closeViewer(); } return; }
   if (dlg.open || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
   if (e.key === 'ArrowRight') go(pos + step()); else if (e.key === 'ArrowLeft') go(pos - step());
 });
@@ -1064,6 +1202,7 @@ async function load(){
   items = (m.data || []).map(r => ({...(r.data || {}), id: r.id})).filter(i => typeof i.kind === 'string');
   if (!b.error) settings = b.data && b.data.data ? {...b.data.data} : {};
   loaded = true; changed();
+  measureMissing();
 }
 function refresh(){ if (!sb || !uid) return; load().then(offlineNote, () => offlineNote()); }
 
