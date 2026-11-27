@@ -247,6 +247,16 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .shot figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .shot .cap{font-family:var(--hand);font-size-adjust:none;font-size:23px;line-height:1.1;overflow-wrap:anywhere}
 .shot .meta{font-size:12px;color:#7a5a60}
+/* three or four to a page: a 2-column grid (wide photos, three of them, stack instead) */
+.shots.n3,.shots.n4{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:minmax(0,1fr);gap:12px 10px}
+.shots.n3 .slot:nth-child(3){grid-column:1 / -1}
+.shots.n3.wide{grid-template-columns:minmax(0,1fr)}
+.shots.n3 .slot,.shots.n4 .slot{min-width:0}.shots.n3.wide .slot:nth-child(3){grid-column:auto}
+.shots.n3 .shot,.shots.n4 .shot{padding:6px 6px 4px;gap:2px}
+.shots.n3 .cap,.shots.n4 .cap{font-size:18px}
+.shots.n3 .meta,.shots.n4 .meta{font-size:10.5px}
+.shots.n4 .slot:nth-child(4n+2) .shot,.shots.n4 .slot:nth-child(4n+3) .shot{transform:rotate(1.3deg)}
+.shots.n4 .slot:nth-child(4n+1) .shot,.shots.n4 .slot:nth-child(4n) .shot{transform:rotate(-1.4deg)}
 
 /* notes */
 .notes{display:flex;flex-direction:column;gap:20px}
@@ -455,7 +465,9 @@ form h2{font-size:21px}
       <label><input type="radio" name="f-layout" id="f-lay-auto" value="auto" checked><span>Automatic</span></label>
       <label><input type="radio" name="f-layout" id="f-lay-full" value="full"><span>Full page</span></label>
       <label><input type="radio" name="f-layout" id="f-lay-half" value="half"><span>Half page</span></label>
-      <small id="lay-hint">Automatic gives tall photos a page of their own and puts wide ones two to a page.</small>
+      <label><input type="radio" name="f-layout" id="f-lay-third" value="third"><span>3 on a page</span></label>
+      <label><input type="radio" name="f-layout" id="f-lay-quarter" value="quarter"><span>4 on a page</span></label>
+      <small id="lay-hint">Automatic gives tall photos a page of their own and puts wide ones two to a page. Photos set to 3 or 4 on a page share a page with the photos next to them that have the same setting.</small>
     </fieldset>
     <p id="err" role="alert"></p>
     <div class="row">
@@ -561,9 +573,12 @@ function photoDims(p){
   return dims.get(p.path) || null;
 }
 /* a photo fills a page when chosen so, or, on Automatic, when it is clearly taller than wide */
+const PER_PAGE = {full:1, half:2, third:3, quarter:4};
+/* how many photos share this photo's page */
+function perPage(item){ return PER_PAGE[item.size] || (isFull(item) ? 1 : 2); }
 function isFull(item){
   if (item.size === 'full') return true;
-  if (item.size === 'half') return false;
+  if (item.size && item.size !== 'auto') return false;
   const d = photoDims(item.photo);
   return !!d && d[1] > d[0]*1.1;
 }
@@ -845,18 +860,22 @@ function drawPhotos(el, list, first){
       h('span', {class:'cap', text:'a caption in your own words'}), h('span', {class:'meta', text:'example'}))));
     return;
   }
-  el.append(h('div', {class:'shots'}, list.map(p => frame(photoBox(p, 'ph'),
+  const wide = list.every(p => { const d = photoDims(p.photo); return d && d[0] > d[1]*1.1; });
+  const n = list.length > 2 ? ' n' + list.length + (wide ? ' wide' : '') : '';
+  el.append(h('div', {class:'shots' + n}, list.map(p => frame(photoBox(p, 'ph'),
     h('span', {class:'cap', text: str(p.title)}), h('span', {class:'meta'}, fmtDay(p.date), ' ', editBtn(p))))));
 }
-/* tall photos (or ones set to Full page) get a page each; the rest go two to a page, in date order */
+/* photos set to 3 or 4 on a page share it with the photos next to them that have the same setting */
 function photoPages(list){
-  const out = []; let half = null;
+  const out = []; let cur = null, n = 0;
   for (const p of list){
-    if (isFull(p)){ if (half){ out.push(half); half = null; } out.push([p]); }
-    else if (half){ half.push(p); out.push(half); half = null; }
-    else half = [p];
+    const k = perPage(p);
+    if (cur && k !== n){ out.push(cur); cur = null; }
+    if (!cur){ cur = []; n = k; }
+    cur.push(p);
+    if (cur.length === n){ out.push(cur); cur = null; }
   }
-  if (half) out.push(half);
+  if (cur) out.push(cur);
   return out.length ? out : [[]];
 }
 function drawNotes(el, list, first){
@@ -1393,7 +1412,7 @@ function openForm(kind, item, preset){
   } else {
     $('f-title').value = item ? str(item.title) : ''; $('f-text').value = item ? str(item.text) : '';
     $('f-from').value = item ? str(item.from) : ''; $('f-date').value = item ? str(item.date) : today();
-    const lay = item && (item.size === 'full' || item.size === 'half') ? item.size : 'auto';
+    const lay = item && PER_PAGE[item.size] ? item.size : 'auto';
     $('f-lay-' + lay).checked = true;
     $('f-time').value = item ? str(item.time) : '';
     $('f-rep-' + (item && item.repeat === 'yearly' ? 'yearly' : 'once')).checked = true;
