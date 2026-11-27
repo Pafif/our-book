@@ -175,6 +175,8 @@ h1,h2,h3{font-family:var(--display);font-size-adjust:none;font-weight:400;margin
 .sec h2{font-size:clamp(26px,3.6cqw,38px);line-height:1.05}
 .kick{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
 .running{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.running.add{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:-4px}
+.running.add .btn{text-transform:none;letter-spacing:normal;font-weight:400}
 .empty{color:var(--ink-soft);font-style:italic;max-width:36ch;margin:0}
 /* the line under the heart: centred beneath it, lines of even length */
 .heartnote{max-width:40ch;margin:0 auto;text-align:center;text-wrap:balance;font-size:17px;line-height:1.45}
@@ -731,7 +733,13 @@ function secHead(key){
   return h('header', {class:'sec'}, h('h2', {text: S.title}),
     canWrite && h('button', {class:'btn small', type:'button', text: S.add, onclick: () => openForm(S.kind)}));
 }
-function running(key){ return h('div', {class:'running', text: SECTIONS[key].title}); }
+function running(key, add){
+  const S = SECTIONS[key];
+  if (!add || !canWrite) return h('div', {class:'running', text: S.title});
+  /* continued pages of a section can carry its add button too, so it is always at hand */
+  return h('div', {class:'running add'}, h('span', {text: S.title}),
+    h('button', {class:'btn small', type:'button', text: S.add, onclick: () => openForm(S.kind)}));
+}
 function editBtn(item){ return canWrite && h('button', {class:'edit', type:'button', text:'edit', 'aria-label':'Edit ' + (str(item.title) || 'this entry'), onclick: () => openForm(item.kind, item)}); }
 
 const HEART = (() => {
@@ -853,7 +861,7 @@ function drawStory(el, list, first){
   })));
 }
 function drawPhotos(el, list, first){
-  el.append(first ? secHead('photos') : running('photos'));
+  el.append(first ? secHead('photos') : running('photos', true));
   const frame = (box, cap, meta) => h('div', {class:'slot'}, h('figure', {class:'shot paper'}, box, h('figcaption', {}, cap, meta)));
   if (!list.length){
     if (loaded) el.append(h('div', {class:'shots ghost'}, frame(h('div', {class:'ph', 'data-ratio': String(4/3), text:'your first photo'}),
@@ -1111,7 +1119,7 @@ function buildPages(){
   };
   if (wide) P.push({section:'cover', blank:true});
   P.push({section:'cover', cover:true, draw: drawCover});
-  sec('contents', [{draw: drawDedication}, {draw: drawContents}]);
+  sec('contents', [{draw: drawDedication}, {draw: drawContents, land: true}]);
   const paged = (key, fn, list) => sec(key, fitChunks(list || byKind(SECTIONS[key].kind), fn, SECTIONS[key].per).map((c, i) => ({ids: c.map(x => x.id), draw: el => fn(el, c, i === 0)})));
   const build = {
     story:    () => paged('story', drawStory),
@@ -1363,7 +1371,10 @@ function turnSingle(dir){
 }
 function goSection(name){
   if (busy){ queued = () => goSection(name); return; }
-  const i = pages.findIndex(p => p.section === name && !p.blank);
+  let i = pages.findIndex(p => p.section === name && !p.blank);
+  /* on a phone, Contents opens on the list itself, not on the page before it */
+  const land = pages.findIndex(p => p.section === name && p.land);
+  if (step() === 1 && land >= 0) i = land;
   if (i >= 0) go(i - i % step());
 }
 /* links to a section (the tabs, the contents page) are handled here directly, so clicking one always works,
